@@ -27,7 +27,8 @@ spacingWeight <- subset(spacingWeight,!is.na(Weight))
 # Rename columns
 names(spacingWeight) <- c("plot","treatment","rep","standCount","standCountIdeal","spacingDim","greenPumpkins","pumpkinNum","weight")
 # Create unique identifier for each pumpkin
-spacingWeight <- mutate(spacingWeight,pumpkinID=paste(plot,"-",pumpkinNum))
+spacingWeight <- mutate(spacingWeight,pumpkinID=paste0(plot,"-",pumpkinNum))
+spacingWeight <- mutate(spacingWeight,year="2021")
 
 # Read sheet with LENGTHS, transform from wide to tall, remove NA records
 spacingLength <- read_excel(path="pumpkin_play.xlsx", sheet="Spacing Lengths (inches)")
@@ -35,8 +36,9 @@ spacingLength <- gather(spacingLength,key="Pumpkin",value="Length",8:55)
 spacingLength <- subset(spacingLength,!is.na(Length))
 # Rename columns
 names(spacingLength) <- c("plot","treatment","rep","standCount","standCountIdeal","spacingDim","greenPumpkins","pumpkinNum","length")
-# Create unique identifier for each pumpkin
-spacingLength <- mutate(spacingLength,pumpkinID=paste(plot,"-",pumpkinNum))
+# Create unique identifier for each pumpkin and assign crop year
+spacingLength <- mutate(spacingLength,pumpkinID=paste0(plot,"-",pumpkinNum))
+spacingLength <- mutate(spacingLength,year="2021")
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA records
 spacingDiameter <- read_excel(path="pumpkin_play.xlsx", sheet="Spacing Diameters (inches)")
@@ -44,8 +46,9 @@ spacingDiameter <- gather(spacingDiameter,key="Pumpkin",value="Diameter",8:55)
 spacingDiameter <- subset(spacingDiameter,!is.na(Diameter))
 # Rename columns
 names(spacingDiameter) <- c("plot","treatment","rep","standCount","standCountIdeal","spacingDim","greenPumpkins","pumpkinNum","diameter")
-# Create unique identifier for each pumpkin
-spacingDiameter <- mutate(spacingDiameter,pumpkinID=paste(plot,"-",pumpkinNum))
+# Create unique identifier for each pumpkin and assign crop year
+spacingDiameter <- mutate(spacingDiameter,pumpkinID=paste0(plot,"-",pumpkinNum))
+spacingDiameter <- mutate(spacingDiameter,year="2021")
 ```  
 
 # Transform Data  
@@ -63,11 +66,12 @@ spacingData$plot <- as.factor(spacingData$plot)
 spacingData$treatment <- as.factor(spacingData$treatment)
 spacingData$rep <- as.factor(spacingData$rep)
 spacingData$pumpkinNum <- as.numeric(spacingData$pumpkinNum)
+spacingData$year <- as.factor(spacingData$year)
 
 # Create variable for pumpkin color, populate based on conditional statement, and format
 spacingData <- mutate(spacingData,color="unknown")
 for (i in 1:nrow(spacingData)) {
-  spacingData[i,13] <- if_else(spacingData[i,8] %in% sapply(strsplit(as.character(spacingData[i,7]),split=", "),function(x) as.numeric(x)),
+  spacingData[i,14] <- if_else(spacingData[i,8] %in% sapply(strsplit(as.character(spacingData[i,7]),split=", "),function(x) as.numeric(x)),
                                  "Green",
                                  "Orange")
 }
@@ -83,7 +87,7 @@ spacingData$length <- as.numeric(spacingData$length)
 spacingData <- mutate(spacingData,standCountIdealPct=standCount/standCountIdeal)
 
 # Arrange columns for presentation of final table for spacing data
-spacingData <- select(spacingData,c(10,1,3,2,8,6,14,4,5,15,13,9,11,12))
+spacingData <- select(spacingData,c(11,10,1,3,2,8,6,15,4,5,16,14,9,12,13))
 
 # Provide structure of transformed variables with data preview
 str(spacingData)
