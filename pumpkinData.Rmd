@@ -19,9 +19,61 @@ knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
 
 # Import Data  
 
+## Import Spacing Data from 2020  
+
+Check workbook names and worksheet names for each of the 3 read_excel functions.  
+Check columns to gather and ensure in Excel the columns with metrics are 8 to 55.  
+Adjust both the year and pumpkin ID variables to reflect year 2020.  
+
 ```{r readExcel}
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA records
-spacingWeight <- read_excel(path="pumpkin_play.xlsx", sheet="Spacing Weights (lbs)")
+spacingWeight <- read_excel(path="2020pumpkinData.xlsx", sheet="Spacing Weight")
+spacingWeight <- gather(spacingWeight,key="Pumpkin",value="Weight",8:55)
+spacingWeight <- subset(spacingWeight,!is.na(Weight))
+# Rename columns
+names(spacingWeight) <- c("plot","treatment","rep","standCount","standCountIdeal","spacingDim","greenPumpkins","pumpkinNum","weight")
+# Create unique identifier for each pumpkin
+spacingWeight <- mutate(spacingWeight,pumpkinID=paste0("2020S","-",plot,"-",pumpkinNum))
+spacingWeight <- mutate(spacingWeight,year="2020")
+
+# Read sheet with LENGTHS, transform from wide to tall, remove NA records
+spacingLength <- read_excel(path="2020pumpkinData.xlsx", sheet="Spacing Length")
+spacingLength <- gather(spacingLength,key="Pumpkin",value="Length",8:54)
+spacingLength <- subset(spacingLength,!is.na(Length))
+# Rename columns
+names(spacingLength) <- c("plot","treatment","rep","standCount","standCountIdeal","spacingDim","greenPumpkins","pumpkinNum","length")
+# Create unique identifier for each pumpkin and assign crop year
+spacingLength <- mutate(spacingLength,pumpkinID=paste0("2020S","-",plot,"-",pumpkinNum))
+spacingLength <- mutate(spacingLength,year="2020")
+
+# Read sheet with DIAMETERS, transform from wide to tall, remove NA records
+spacingDiameter <- read_excel(path="2020pumpkinData.xlsx", sheet="Spacing Diameter")
+spacingDiameter <- gather(spacingDiameter,key="Pumpkin",value="Diameter",8:54)
+spacingDiameter <- subset(spacingDiameter,!is.na(Diameter))
+# Rename columns
+names(spacingDiameter) <- c("plot","treatment","rep","standCount","standCountIdeal","spacingDim","greenPumpkins","pumpkinNum","diameter")
+# Create unique identifier for each pumpkin and assign crop year
+spacingDiameter <- mutate(spacingDiameter,pumpkinID=paste0("2020S","-",plot,"-",pumpkinNum))
+spacingDiameter <- mutate(spacingDiameter,year="2020")
+
+# Join all spacing metrics in one raw table for quality checks
+spacingDataRaw2020 <- inner_join(spacingWeight,spacingLength)
+spacingDataRaw2020 <- inner_join(spacingDataRaw2020,spacingDiameter)
+
+# Create clean table for further transformations
+spacingData2020 <- as_tibble(spacingDataRaw2020)
+
+# Remove bad pumpkins ... NEED TO CONFIRM WITH CLIENT
+spacingData2020 <- subset(spacingData2020, weight!="rotten")
+```  
+
+## Import Spacing Data from 2021  
+
+Check workbook names and worksheet names for each of the 3 read_excel functions.  
+
+```{r readExcel}
+# Read sheet with WEIGHTS, transform from wide to tall, remove NA records
+spacingWeight <- read_excel(path="2021pumpkinData.xlsx", sheet="Spacing Weights (lbs)")
 spacingWeight <- gather(spacingWeight,key="Pumpkin",value="Weight",8:55)
 spacingWeight <- subset(spacingWeight,!is.na(Weight))
 # Rename columns
@@ -31,7 +83,7 @@ spacingWeight <- mutate(spacingWeight,pumpkinID=paste0("2021S","-",plot,"-",pump
 spacingWeight <- mutate(spacingWeight,year="2021")
 
 # Read sheet with LENGTHS, transform from wide to tall, remove NA records
-spacingLength <- read_excel(path="pumpkin_play.xlsx", sheet="Spacing Lengths (inches)")
+spacingLength <- read_excel(path="2021pumpkinData.xlsx", sheet="Spacing Lengths (inches)")
 spacingLength <- gather(spacingLength,key="Pumpkin",value="Length",8:55)
 spacingLength <- subset(spacingLength,!is.na(Length))
 # Rename columns
@@ -41,7 +93,7 @@ spacingLength <- mutate(spacingLength,pumpkinID=paste0("2021S","-",plot,"-",pump
 spacingLength <- mutate(spacingLength,year="2021")
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA records
-spacingDiameter <- read_excel(path="pumpkin_play.xlsx", sheet="Spacing Diameters (inches)")
+spacingDiameter <- read_excel(path="2021pumpkinData.xlsx", sheet="Spacing Diameters (inches)")
 spacingDiameter <- gather(spacingDiameter,key="Pumpkin",value="Diameter",8:55)
 spacingDiameter <- subset(spacingDiameter,!is.na(Diameter))
 # Rename columns
@@ -49,17 +101,20 @@ names(spacingDiameter) <- c("plot","treatment","rep","standCount","standCountIde
 # Create unique identifier for each pumpkin and assign crop year
 spacingDiameter <- mutate(spacingDiameter,pumpkinID=paste0("2021S","-",plot,"-",pumpkinNum))
 spacingDiameter <- mutate(spacingDiameter,year="2021")
+
+# Join all spacing metrics in one raw table for quality checks
+spacingDataRaw2021 <- inner_join(spacingWeight,spacingLength)
+spacingDataRaw2021 <- inner_join(spacingDataRaw2021,spacingDiameter)
+
+# Create clean table for further transformations
+spacingData2021 <- as_tibble(spacingDataRaw2021)
 ```  
 
 # Transform Data  
 
 ```{r transformData}
-# Join all spacing metrics in one raw table for quality checks
-spacingDataRaw <- inner_join(spacingWeight,spacingLength)
-spacingDataRaw <- inner_join(spacingDataRaw,spacingDiameter)
-
-# Create clean table for further transformations
-spacingData <- as_tibble(spacingDataRaw)
+# Stack the 2020 and 2021 data sets into one tibble
+spacingData <- rbind(spacingData2020,spacingData2021)
 
 # Format variables
 spacingData$plot <- as.factor(spacingData$plot)
@@ -100,7 +155,7 @@ str(spacingData)
 spacingData
 
 # Export R data object to Excel for client review
-write_xlsx(spacingData,"spacingData.xlsx")
+write_xlsx(spacingData,"spacingData.xlsx",sheet="spacingData")
 ```
 
 # Explore Data  
