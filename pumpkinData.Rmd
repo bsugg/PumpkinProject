@@ -25,7 +25,7 @@ Check workbook names and worksheet names for each of the 3 read_excel functions.
 Check columns to gather and ensure in Excel the columns with metrics are 8 to 55.  
 Adjust both the year and pumpkin ID variables to reflect year 2020.  
 
-```{r readExcel}
+```{r readExcel2020}
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA records
 spacingWeight <- read_excel(path="2020pumpkinData.xlsx", sheet="Spacing Weight")
 spacingWeight <- gather(spacingWeight,key="Pumpkin",value="Weight",8:55)
@@ -71,7 +71,7 @@ spacingData2020 <- subset(spacingData2020, weight!="rotten")
 
 Check workbook names and worksheet names for each of the 3 read_excel functions.  
 
-```{r readExcel}
+```{r readExcel2021}
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA records
 spacingWeight <- read_excel(path="2021pumpkinData.xlsx", sheet="Spacing Weights (lbs)")
 spacingWeight <- gather(spacingWeight,key="Pumpkin",value="Weight",8:55)
@@ -155,7 +155,7 @@ str(spacingData)
 spacingData
 
 # Export R data object to Excel for client review
-write_xlsx(spacingData,"spacingData.xlsx",sheet="spacingData")
+write_xlsx(spacingData,"spacingData.xlsx")
 ```
 
 # Explore Data  
