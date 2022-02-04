@@ -381,7 +381,9 @@ spacingWeight &lt;- subset(spacingWeight, !is.na(Weight))
 names(spacingWeight) &lt;- c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, 
     &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;weight&quot;)
 # Create unique identifier for each pumpkin
-spacingWeight &lt;- mutate(spacingWeight, pumpkinID = paste(plot, &quot;-&quot;, pumpkinNum))
+spacingWeight &lt;- mutate(spacingWeight, pumpkinID = paste0(&quot;2021S&quot;, &quot;-&quot;, 
+    plot, &quot;-&quot;, pumpkinNum))
+spacingWeight &lt;- mutate(spacingWeight, year = &quot;2021&quot;)
 
 # Read sheet with LENGTHS, transform from wide to tall, remove NA
 # records
@@ -392,8 +394,10 @@ spacingLength &lt;- subset(spacingLength, !is.na(Length))
 # Rename columns
 names(spacingLength) &lt;- c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, 
     &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;length&quot;)
-# Create unique identifier for each pumpkin
-spacingLength &lt;- mutate(spacingLength, pumpkinID = paste(plot, &quot;-&quot;, pumpkinNum))
+# Create unique identifier for each pumpkin and assign crop year
+spacingLength &lt;- mutate(spacingLength, pumpkinID = paste0(&quot;2021S&quot;, &quot;-&quot;, 
+    plot, &quot;-&quot;, pumpkinNum))
+spacingLength &lt;- mutate(spacingLength, year = &quot;2021&quot;)
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA
 # records
@@ -404,17 +408,18 @@ spacingDiameter &lt;- subset(spacingDiameter, !is.na(Diameter))
 # Rename columns
 names(spacingDiameter) &lt;- c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, 
     &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;diameter&quot;)
-# Create unique identifier for each pumpkin
-spacingDiameter &lt;- mutate(spacingDiameter, pumpkinID = paste(plot, &quot;-&quot;, 
-    pumpkinNum))</code></pre>
+# Create unique identifier for each pumpkin and assign crop year
+spacingDiameter &lt;- mutate(spacingDiameter, pumpkinID = paste0(&quot;2021S&quot;, 
+    &quot;-&quot;, plot, &quot;-&quot;, pumpkinNum))
+spacingDiameter &lt;- mutate(spacingDiameter, year = &quot;2021&quot;)</code></pre>
 </div>
 <div id="transform-data" class="section level1">
 <h1>Transform Data</h1>
 <pre class="r"><code># Join all spacing metrics in one raw table for quality checks
 spacingDataRaw &lt;- inner_join(spacingWeight, spacingLength)</code></pre>
-<pre><code>## Joining, by = c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;pumpkinID&quot;)</code></pre>
+<pre><code>## Joining, by = c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;pumpkinID&quot;, &quot;year&quot;)</code></pre>
 <pre class="r"><code>spacingDataRaw &lt;- inner_join(spacingDataRaw, spacingDiameter)</code></pre>
-<pre><code>## Joining, by = c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;pumpkinID&quot;)</code></pre>
+<pre><code>## Joining, by = c(&quot;plot&quot;, &quot;treatment&quot;, &quot;rep&quot;, &quot;standCount&quot;, &quot;standCountIdeal&quot;, &quot;spacingDim&quot;, &quot;greenPumpkins&quot;, &quot;pumpkinNum&quot;, &quot;pumpkinID&quot;, &quot;year&quot;)</code></pre>
 <pre class="r"><code># Create clean table for further transformations
 spacingData &lt;- as_tibble(spacingDataRaw)
 
@@ -423,12 +428,13 @@ spacingData$plot &lt;- as.factor(spacingData$plot)
 spacingData$treatment &lt;- as.factor(spacingData$treatment)
 spacingData$rep &lt;- as.factor(spacingData$rep)
 spacingData$pumpkinNum &lt;- as.numeric(spacingData$pumpkinNum)
+spacingData$year &lt;- as.factor(spacingData$year)
 
 # Create variable for pumpkin color, populate based on conditional
 # statement, and format
 spacingData &lt;- mutate(spacingData, color = &quot;unknown&quot;)
 for (i in 1:nrow(spacingData)) {
-    spacingData[i, 13] &lt;- if_else(spacingData[i, 8] %in% sapply(strsplit(as.character(spacingData[i, 
+    spacingData[i, 14] &lt;- if_else(spacingData[i, 8] %in% sapply(strsplit(as.character(spacingData[i, 
         7]), split = &quot;, &quot;), function(x) as.numeric(x)), &quot;Green&quot;, &quot;Orange&quot;)
 }
 spacingData$color &lt;- as.factor(spacingData$color)
@@ -438,26 +444,36 @@ spacingData$color &lt;- as.factor(spacingData$color)
 spacingData &lt;- mutate(spacingData, spacingArea = sapply(strsplit(as.character(spacingDim), 
     split = &quot; x &quot;), function(x) prod(as.numeric(x))))
 spacingData$spacingArea &lt;- as.factor(spacingData$spacingArea)
-spacingData$spacingDim &lt;- as.factor(spacingData$spacingDim)
+spacingData$spacingDim &lt;- as.character(spacingData$spacingDim)
 spacingData$length &lt;- as.numeric(spacingData$length)
 
 # Create variable for realized ideal stand count percentage
 spacingData &lt;- mutate(spacingData, standCountIdealPct = standCount/standCountIdeal)
 
 # Arrange columns for presentation of final table for spacing data
-spacingData &lt;- select(spacingData, c(10, 1, 3, 2, 8, 6, 14, 4, 5, 15, 13, 
-    9, 11, 12))
+spacingData &lt;- select(spacingData, c(11, 10, 1, 3, 2, 8, 15, 6, 4, 5, 16, 
+    14, 9, 12, 13))
+
+# Split spacingDim for betweenRow and inRow columns
+spacingData &lt;- separate(spacingData, spacingDim, into = c(&quot;betweenRow&quot;, 
+    &quot;inRow&quot;), sep = &quot; x &quot;, remove = FALSE)
+spacingData$spacingDim &lt;- as.factor(spacingData$spacingDim)
+spacingData$betweenRow &lt;- as.numeric(spacingData$betweenRow)
+spacingData$inRow &lt;- as.numeric(spacingData$inRow)
 
 # Provide structure of transformed variables with data preview
 str(spacingData)</code></pre>
-<pre><code>## tibble [711 x 14] (S3: tbl_df/tbl/data.frame)
-##  $ pumpkinID         : chr [1:711] &quot;101 - 1&quot; &quot;102 - 1&quot; &quot;103 - 1&quot; &quot;104 - 1&quot; ...
+<pre><code>## tibble [711 x 17] (S3: tbl_df/tbl/data.frame)
+##  $ year              : Factor w/ 1 level &quot;2021&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ pumpkinID         : chr [1:711] &quot;2021S-101-1&quot; &quot;2021S-102-1&quot; &quot;2021S-103-1&quot; &quot;2021S-104-1&quot; ...
 ##  $ plot              : Factor w/ 32 levels &quot;101&quot;,&quot;102&quot;,&quot;103&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
 ##  $ rep               : Factor w/ 4 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;: 1 1 1 1 1 1 1 1 2 2 ...
 ##  $ treatment         : Factor w/ 8 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 2 3 4 5 6 7 8 3 1 ...
 ##  $ pumpkinNum        : num [1:711] 1 1 1 1 1 1 1 1 1 1 ...
-##  $ spacingDim        : Factor w/ 8 levels &quot;10 x 1&quot;,&quot;10 x 2&quot;,..: 1 2 3 4 5 6 7 8 3 1 ...
 ##  $ spacingArea       : Factor w/ 4 levels &quot;10&quot;,&quot;20&quot;,&quot;30&quot;,..: 1 2 3 4 1 2 3 4 3 1 ...
+##  $ spacingDim        : Factor w/ 8 levels &quot;10 x 1&quot;,&quot;10 x 2&quot;,..: 1 2 3 4 5 6 7 8 3 1 ...
+##  $ betweenRow        : num [1:711] 10 10 10 10 5 5 5 5 10 10 ...
+##  $ inRow             : num [1:711] 1 2 3 4 2 4 6 8 3 1 ...
 ##  $ standCount        : num [1:711] 80 40 28 19 38 20 12 8 28 80 ...
 ##  $ standCountIdeal   : num [1:711] 80 40 28 20 40 20 14 10 28 80 ...
 ##  $ standCountIdealPct: num [1:711] 1 1 1 0.95 0.95 ...
@@ -466,22 +482,22 @@ str(spacingData)</code></pre>
 ##  $ length            : num [1:711] 10.6 11.8 15.5 13.3 11.1 12.5 14.1 13.7 12.2 10 ...
 ##  $ diameter          : num [1:711] 11.9 12.1 14 13.4 12 14.1 15.5 14.4 14 12.6 ...</code></pre>
 <pre class="r"><code>spacingData</code></pre>
-<pre><code>## # A tibble: 711 x 14
-##    pumpkinID plot  rep   treatment pumpkinNum spacingDim spacingArea standCount
-##    &lt;chr&gt;     &lt;fct&gt; &lt;fct&gt; &lt;fct&gt;          &lt;dbl&gt; &lt;fct&gt;      &lt;fct&gt;            &lt;dbl&gt;
-##  1 101 - 1   101   1     1                  1 10 x 1     10                  80
-##  2 102 - 1   102   1     2                  1 10 x 2     20                  40
-##  3 103 - 1   103   1     3                  1 10 x 3     30                  28
-##  4 104 - 1   104   1     4                  1 10 x 4     40                  19
-##  5 105 - 1   105   1     5                  1 5 x 2      10                  38
-##  6 106 - 1   106   1     6                  1 5 x 4      20                  20
-##  7 107 - 1   107   1     7                  1 5 x 6      30                  12
-##  8 108 - 1   108   1     8                  1 5 x 8      40                   8
-##  9 201 - 1   201   2     3                  1 10 x 3     30                  28
-## 10 202 - 1   202   2     1                  1 10 x 1     10                  80
-## # ... with 701 more rows, and 6 more variables: standCountIdeal &lt;dbl&gt;,
-## #   standCountIdealPct &lt;dbl&gt;, color &lt;fct&gt;, weight &lt;dbl&gt;, length &lt;dbl&gt;,
-## #   diameter &lt;dbl&gt;</code></pre>
+<pre><code>## # A tibble: 711 x 17
+##    year  pumpkinID plot  rep   treatment pumpkinNum spacingArea spacingDim
+##    &lt;fct&gt; &lt;chr&gt;     &lt;fct&gt; &lt;fct&gt; &lt;fct&gt;          &lt;dbl&gt; &lt;fct&gt;       &lt;fct&gt;     
+##  1 2021  2021S-10~ 101   1     1                  1 10          10 x 1    
+##  2 2021  2021S-10~ 102   1     2                  1 20          10 x 2    
+##  3 2021  2021S-10~ 103   1     3                  1 30          10 x 3    
+##  4 2021  2021S-10~ 104   1     4                  1 40          10 x 4    
+##  5 2021  2021S-10~ 105   1     5                  1 10          5 x 2     
+##  6 2021  2021S-10~ 106   1     6                  1 20          5 x 4     
+##  7 2021  2021S-10~ 107   1     7                  1 30          5 x 6     
+##  8 2021  2021S-10~ 108   1     8                  1 40          5 x 8     
+##  9 2021  2021S-20~ 201   2     3                  1 30          10 x 3    
+## 10 2021  2021S-20~ 202   2     1                  1 10          10 x 1    
+## # ... with 701 more rows, and 9 more variables: betweenRow &lt;dbl&gt;, inRow &lt;dbl&gt;,
+## #   standCount &lt;dbl&gt;, standCountIdeal &lt;dbl&gt;, standCountIdealPct &lt;dbl&gt;,
+## #   color &lt;fct&gt;, weight &lt;dbl&gt;, length &lt;dbl&gt;, diameter &lt;dbl&gt;</code></pre>
 <pre class="r"><code># Export R data object to Excel for client review
 write_xlsx(spacingData, &quot;spacingData.xlsx&quot;)</code></pre>
 </div>
