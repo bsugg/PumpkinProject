@@ -32,6 +32,8 @@ Brian Sugg & Chengxi Zou
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
+Hello
+
 # Discovery
 
 Placeholder for project introduction.

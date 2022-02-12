@@ -24,6 +24,8 @@ knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
 knitr::include_graphics("./Images/deliveryPhases.JPG")
 ```
 
+Hello
+
 # Discovery  
 
 Placeholder for project introduction.  
