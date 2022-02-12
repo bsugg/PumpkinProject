@@ -2,3 +2,8 @@
 ---
 
 @import "{{ site.theme }}";
+/* Differentiate TOC levels more */
+.tocify .tocify-subheader .tocify-item {
+  font-size: 10px;
+  line-height: 1em;
+}
