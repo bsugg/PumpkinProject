@@ -3,33 +3,6 @@ ST542 - Consulting Project
 Brian Sugg & Chengxi Zou
 2/12/2022
 
-  - [Discovery](#discovery)
-  - [Data Processing](#data-processing)
-      - [Data Formatting](#data-formatting)
-          - [`2020 Pumpkin Results for
-            Joy.xlsx`](#pumpkin-results-for-joy.xlsx)
-              - [Preview Before Formatting](#preview-before-formatting)
-              - [Preview After Formatting](#preview-after-formatting)
-          - [`2020 stand count.xlsx`](#stand-count.xlsx)
-          - [`2021 Pumpkin Trial Data.xlsx`](#pumpkin-trial-data.xlsx)
-              - [Spacing Study](#spacing-study)
-              - [Nitrogen Study](#nitrogen-study)
-              - [Leaf Composition Study](#leaf-composition-study)
-              - [Preview Before
-                Formatting](#preview-before-formatting-1)
-              - [Preview After Formatting](#preview-after-formatting-1)
-          - [`2021 Bin Pumpkin Sizes.xlsx`](#bin-pumpkin-sizes.xlsx)
-      - [Data Import](#data-import)
-          - [Spacing Study](#spacing-study-1)
-              - [2020 Data](#data)
-              - [2021 Data](#data-1)
-      - [Data Transformation](#data-transformation)
-  - [Data Exploration](#data-exploration)
-      - [Plots and Charts](#plots-and-charts)
-          - [Spacing Study](#spacing-study-2)
-  - [Analysis](#analysis)
-  - [Conclusions](#conclusions)
-
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
 # Discovery
