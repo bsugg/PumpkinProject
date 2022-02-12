@@ -1,6 +1,16 @@
 ---
 ---
-
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary
 @import "{{ site.theme }}";
 /* Separate sections in the body more */
 .level2 { margin-bottom: 50px; }
