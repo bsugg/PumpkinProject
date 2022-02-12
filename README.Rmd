@@ -6,7 +6,6 @@ output:
   rmarkdown::github_document:
     toc: true
     toc_depth: 4
-    toc_float: true
 editor_options: 
   chunk_output_type: console
 ---
