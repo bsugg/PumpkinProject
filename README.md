@@ -30,22 +30,6 @@ Brian Sugg & Chengxi Zou
   - [Analysis](#analysis)
   - [Conclusions](#conclusions)
 
-<style type="text/css">
-h1.title {
-  font-size: 38px;
-  color: Black;
-  text-align: center;
-}
-h4.author {
-  font-size: 18px;
-  text-align: center;
-}
-h4.date {
-  font-size: 18px;
-  text-align: center;
-}
-</style>
-
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
 # Discovery
