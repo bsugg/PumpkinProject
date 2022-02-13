@@ -379,9 +379,9 @@ nav {
       &:hover { color: #CC0000; }
     }
 
-     .active {
+     .active { // Creates vertical line next to active header
        border-left: solid 4px #CC0000;
-       //padding-right: 13px;
+       padding-left: 10px;
      }
     
   } // End ul
