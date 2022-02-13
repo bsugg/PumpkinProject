@@ -337,10 +337,11 @@ nav {
 
       &.tag-h2 {
         font-size: 1.2em;
+        text-indent: 5px;
         a {
           &:hover { color: #CC0000; }
           color: #000000;
-          text-indent: 5px;
+          
         }
         + .tag-h1 {
           margin-top:10px;
