@@ -313,7 +313,8 @@ nav {
     list-style-image: none;
     font-size: 14px;
     line-height: 24px;
-
+    white-space:nowrap; // I added this
+    
     li {
       padding: 5px 0px;
       line-height: 16px;
