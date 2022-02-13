@@ -347,6 +347,10 @@ nav {
         + .tag-h1 { // This creates vertical spacing if next element is a h1
           margin-top:10px;
         }
+        + .tag-h3 {
+          text-overflow: ellipsis;
+          word-wrap: break-word;
+        }
       }
       
       &.tag-h3 {
