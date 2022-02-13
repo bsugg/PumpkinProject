@@ -323,25 +323,37 @@ nav {
 
       &.tag-h1 {
         font-size: 1.2em;
-
         a {
           font-weight: bold;
           &:hover { color: #CC0000; }
           color: #000000;
         }
-
         + .tag-h2 {
-
         }
       }
 
       &.tag-h2 {
-
+        a {
+          font-weight: bold;
+          &:hover { color: #CC0000; }
+          color: #000000;
+        }
         + .tag-h1 {
           margin-top:10px;
-          
         }
       }
+      
+      &.tag-h3 {
+        a {
+          font-weight: bold;
+          &:hover { color: #CC0000; }
+          color: #000000;
+        }
+        + .tag-h1 {
+          margin-top:10px;
+        }
+      }
+      
     }
 
     a {
@@ -353,8 +365,9 @@ nav {
     //   border-right:solid 4px #39C;
     //   padding-right:13px;
     // }
-  }
-}
+    
+  } // End ul
+} // End nav
 
 footer {
   width:180px;
