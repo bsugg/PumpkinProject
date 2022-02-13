@@ -312,7 +312,7 @@ nav {
     list-style: none;
     list-style-image:none;
     font-size: 14px;
-    line-height:24px;
+    line-height: 24px;
 
     li {
       padding: 5px 0px;
@@ -326,7 +326,8 @@ nav {
 
         a {
           font-weight: bold;
-          color: #333;
+          &:hover { color: #CC0000; }
+          color: #000000;
         }
 
         + .tag-h2 {
@@ -345,8 +346,7 @@ nav {
 
     a {
       color: #666;
-      margin-left:10px;
-      &:hover { color: #999; }
+      &:hover { color: #CC0000; }
     }
 
     // .active {
