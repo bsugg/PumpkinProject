@@ -380,8 +380,15 @@ nav {
     }
 
      .active { // Creates vertical line next to active header
-       border-right: solid 4px #CC0000;
-       padding-right: 10px;
+       a {
+         color: #FFFFFF;
+         background-color: #CC0000;
+         &:hover { color: #000000; }
+       }
+       
+       
+       //border-right: solid 4px #CC0000;
+       //padding-right: 10px;
      }
     
   } // End ul
