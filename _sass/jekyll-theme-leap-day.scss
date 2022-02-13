@@ -322,7 +322,7 @@ nav {
       // right:-12px;
 
       &.tag-h1 {
-        font-size: 1.2em;
+        font-size: 1.4em;
         a {
           font-weight: bold;
           &:hover { color: #CC0000; }
@@ -333,7 +333,8 @@ nav {
       }
 
       &.tag-h2 {
-        font-size: 1.1em;
+        font-size: 1.2em;
+        padding-left: 5px
         a {
           &:hover { color: #CC0000; }
           color: #000000;
@@ -352,7 +353,7 @@ nav {
       }
       
       &.tag-h4 {
-        font-size: 0.9em;
+        font-size: 0.8em;
         a {
           &:hover { color: #CC0000; }
           color: #000000;
