@@ -1,13 +1,59 @@
-ST542 - Consulting Project
+Delivery Phases
 ================
-Brian Sugg & Chengxi Zou
-2/12/2022
+Last Update: 2/13/2022
 
-<img src="./Images/deliveryPhases.JPG" width="130%" />
+<img src="./Images/deliveryPhases.JPG" width="130%" /><img src="./Images/deliveryTimeline.JPG" width="130%" />
 
 # Discovery
 
-Placeholder for project introduction.
+As a graduate level course offering at North Carolina State University,
+*ST542 - Statistical Practice* provides a discussion-based introduction
+to statistical practice that is geared towards students in the final
+semester of their Master of Statistics degree. Students practice writing
+and presenting throughout the semester, gaining soft skills that aren’t
+necessarily covered in other statistical courses. Students are paired
+and assigned to consulting engagements provided by the instructor that
+are selected from a list of projects submitted by researchers on campus.
+Covered topics of the course include negotiating expectations with
+clients, technical writing and editing, data cleaning and visualization,
+and finding research ideas from consulting projects.
+
+## Participants
+
+**Client:** Kim Heagy *(NCSU Horticulture Grad Student)*  
+**Consultants:** Brian Sugg, Chengxi Zou *(NCSU Statistics Grad
+Students)*
+
+## Project Background
+
+Pumpkins are an emerging specialty crop in North Carolina. In 2019 the
+state produced 713,000 cwt of pumpkins on 3,000 acres, ranking 6th in
+the United States where overall national production is steadily
+increasing. With the rise in pumpkin production there is an increasing
+need for providing clear guidelines to North Carolina farmers on how
+plant density impacts overall production. In the absence of clear
+guidelines, North Carolina Extension Agents have noticed a variety of
+methods in how farmers grow pumpkins. There is a challenge in not only
+determining how to optimize land usage, but also in how to optimize the
+capacity of transportation bins for moving pumpkins to market. Another
+challenge facing farmers is the rise in commodity prices for fertilizer,
+the primary means for applying nitrogen to crops.
+
+Taking into consideration these challenges, it has become necessary to
+provide advice to farmers on how growing conditions affect the yield of
+pumpkin crops. As part of her thesis for her graduate program at NC
+State, Kim Heagy has focused her research in two areas on how to grow
+pumpkins most efficiently:
+
+1.  Researching plant density by conducting a plant spacing study, where
+    the hypothesis is pumpkins grown closer together will have a higher
+    overall yield.  
+2.  Researching fertilizer application levels by conducting a separate
+    nitrogen study, where the hypothesis is higher leaf nitrogen
+    composition will indicate higher yields.
+
+The two studies were conducted at the NC State Extension Upper Mountain
+Research Station under the care of North Carolina Extension Agents.
 
 # Data Processing
 
@@ -37,7 +83,7 @@ and columns, ensuring categorical values were consistently spelled and
 spaced (“10 x 1” rather than “10x 1”), along with other minor changes to
 assist with a clean import to R.
 
-### `2020 Pumpkin Results for Joy.xlsx`
+### 2020 Pumpkin Results for Joy.xlsx
 
 This file contained the 2020 spacing study data, consisting of three
 worksheets total, with one worksheet for each of the three metrics that
@@ -101,7 +147,7 @@ for easy future reference.
 
 </div>
 
-### `2020 stand count.xlsx`
+### 2020 stand count.xlsx
 
 This file contained the stand count data from the 2020 spacing study,
 which was not part of the original file `2020 Pumpkin Results for
@@ -118,7 +164,7 @@ The below formatting steps were followed:
 Finally, the file was renamed to `2020standCount.xlsx` after formatting
 for easy future reference.
 
-### `2021 Pumpkin Trial Data.xlsx`
+### 2021 Pumpkin Trial Data.xlsx
 
 This file contained the 2021 spacing study, nitrogen study, and leaf
 composition study data, consisting of nine worksheets total, with one
@@ -193,7 +239,7 @@ for easy future reference.
 
 </div>
 
-### `2021 Bin Pumpkin Sizes.xlsx`
+### 2021 Bin Pumpkin Sizes.xlsx
 
 To be processed…
 
