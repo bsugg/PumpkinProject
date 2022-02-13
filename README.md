@@ -1,8 +1,8 @@
-Delivery Phases
+Project Phases
 ================
 Last Update: 2/13/2022
 
-<img src="./Images/deliveryPhases.JPG" width="130%" /><img src="./Images/deliveryTimeline.JPG" width="130%" />
+<img src="./Images/deliveryPhases.JPG" width="130%" />
 
 # Discovery
 
@@ -54,6 +54,18 @@ pumpkins most efficiently:
 
 The two studies were conducted at the NC State Extension Upper Mountain
 Research Station under the care of North Carolina Extension Agents.
+
+## Expectations
+
+This project will be expected to deliver…
+
+1.  One  
+2.  Two  
+3.  Three
+
+Following the below delivery timeline for each phase of work:
+
+<img src="./Images/deliveryTimeline.JPG" width="130%" />
 
 # Data Processing
 

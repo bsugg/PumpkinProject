@@ -1,5 +1,5 @@
 ---
-title: "Delivery Phases"
+title: "Project Phases"
 date: "Last Update: 2/13/2022"
 output:
   rmarkdown::github_document:
@@ -20,7 +20,6 @@ knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
 
 ```{r deliveryPhases, echo=FALSE, out.width="130%"}
 knitr::include_graphics("./Images/deliveryPhases.JPG")
-knitr::include_graphics("./Images/deliveryTimeline.JPG")
 ```
 
 # Discovery  
@@ -42,6 +41,20 @@ Taking into consideration these challenges, it has become necessary to provide a
 2. Researching fertilizer application levels by conducting a separate nitrogen study, where the hypothesis is higher leaf nitrogen composition will indicate higher yields.  
 
 The two studies were conducted at the NC State Extension Upper Mountain Research Station under the care of North Carolina Extension Agents.  
+
+## Expectations  
+
+This project will be expected to deliver...  
+
+1. One  
+2. Two  
+3. Three  
+
+Following the below delivery timeline for each phase of work:  
+
+```{r deliveryTimeline, echo=FALSE, out.width="130%"}
+knitr::include_graphics("./Images/deliveryTimeline.JPG")
+```
 
 # Data Processing  
 
