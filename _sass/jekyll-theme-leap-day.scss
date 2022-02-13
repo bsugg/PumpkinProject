@@ -301,7 +301,7 @@ small {
 }
 
 nav {
-  width: 230px;
+  width: 250px;
   position: fixed;
   top: 150px;
   left:50%;
@@ -355,9 +355,7 @@ nav {
       
       &.tag-h3 {
         font-size: 1.0em;
-        text-indent: 20px;
-        text-overflow: ellipsis;
-        word-wrap: break-word;
+        left: 20px;
         a {
           &:hover { color: #CC0000; }
           color: #000000;
