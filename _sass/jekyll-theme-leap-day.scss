@@ -297,15 +297,15 @@ section {
 }
 
 small {
-  font-size:12px;
+  font-size: 12px;
 }
 
 nav {
   width: 250px;
   position: fixed;
   top: 150px;
-  left:50%;
-  margin-left:-580px;
+  left: 50%;
+  margin-left: -580px;
   text-align: left;
 
   ul {
@@ -323,6 +323,7 @@ nav {
 
       &.tag-h1 {
         font-size: 1.4em;
+        padding-left: 0px; // Creates indent margin for all lines in element
         a {
           font-weight: bold;
           &:hover { color: #CC0000; }
@@ -337,36 +338,36 @@ nav {
 
       &.tag-h2 {
         font-size: 1.2em;
-        text-indent: 10px;
+        padding-left: 10px; // Creates indent margin for all lines in element
         a {
           &:hover { color: #CC0000; }
           color: #000000;
         }
-        + .tag-h1 { // This creates vertical spacing if next element is a h1
+        + .tag-h1 { // Creates vertical spacing if next element is a h1
           margin-top:10px;
         }
       }
       
       &.tag-h3 {
         font-size: 1.0em;
-        padding-left: 20px;
+        padding-left: 20px; // Creates indent margin for all lines in element
         a {
           &:hover { color: #CC0000; }
           color: #000000;
         }
-        + .tag-h1 { // This creates vertical spacing if next element is a h1
+        + .tag-h1 { // Creates vertical spacing if next element is a h1
           margin-top:10px;
         }
       }
       
       &.tag-h4 {
         font-size: 0.8em;
-        text-indent: 30px;
+        padding-left: 30px; // Creates indent margin for all lines in element
         a {
           &:hover { color: #CC0000; }
           color: #000000;
         }
-        + .tag-h1 { // This creates vertical spacing if next element is a h1
+        + .tag-h1 { // Creates vertical spacing if next element is a h1
           margin-top:10px;
         }
       }
