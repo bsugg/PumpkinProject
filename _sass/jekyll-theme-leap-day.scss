@@ -321,7 +321,7 @@ nav {
       padding: 5px 0px;
       line-height: 16px;
       // padding-right:17px;
-      position:relative;
+      // position:relative;
       // right:-12px;
 
       &.tag-h1 {
@@ -406,7 +406,10 @@ footer {
     width:auto;
     margin:0;
   }
-
+.nav-menu {
+    overflow: scroll;
+    height: calc(100vh - 85px); 
+}
   nav{
     display: none;
   }
@@ -495,7 +498,10 @@ footer {
     margin-bottom: 0px;
     width: auto;
   }
-
+.nav-menu {
+    overflow: scroll;
+    height: calc(100vh - 85px); 
+}
   header ul, header p.view {
     position:static;
   }
