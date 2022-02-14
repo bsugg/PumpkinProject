@@ -406,12 +406,10 @@ footer {
     width:auto;
     margin:0;
   }
-.nav-menu {
-    overflow: scroll;
-    height: calc(100vh - 85px); 
-}
+
   nav{
-    display: none;
+    //display: none;
+    overflow: scroll;
   }
 
   header, section, footer {
@@ -498,10 +496,7 @@ footer {
     margin-bottom: 0px;
     width: auto;
   }
-.nav-menu {
-    overflow: scroll;
-    height: calc(100vh - 85px); 
-}
+
   header ul, header p.view {
     position:static;
   }
