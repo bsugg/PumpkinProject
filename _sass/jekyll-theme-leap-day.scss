@@ -315,7 +315,7 @@ nav {
     list-style-image: none;
     font-size: 14px;
     line-height: 24px;
-    overflow: auto; /* Enable scrolling if the sidenav has too much content */
+    overflow: scroll; /* Enable scrolling if the sidenav has too much content */
     
     li {
       padding: 5px 0px;
