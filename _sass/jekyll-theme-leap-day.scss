@@ -265,7 +265,7 @@ header {
     padding:0;
     float: left;
     margin-left:10px;
-
+    
     li {
       display:inline;
 
@@ -304,7 +304,7 @@ small {
 
 nav {
   width: 250px;
-  position: relative;
+  position: fixed;
   top: 150px;
   left: 50%;
   margin-left: -580px;
@@ -315,6 +315,7 @@ nav {
     list-style-image: none;
     font-size: 14px;
     line-height: 24px;
+    overflow: auto; /* Enable scrolling if the sidenav has too much content */
     
     li {
       padding: 5px 0px;
