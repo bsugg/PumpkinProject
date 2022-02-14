@@ -315,13 +315,13 @@ nav {
     list-style-image: none;
     font-size: 14px;
     line-height: 24px;
-    overflow: scroll; /* Enable scrolling if the sidenav has too much content */
+    //overflow: scroll; /* Enable scrolling if the sidenav has too much content */
     
     li {
       padding: 5px 0px;
       line-height: 16px;
       // padding-right:17px;
-      // position:relative;
+      position:relative;
       // right:-12px;
 
       &.tag-h1 {
