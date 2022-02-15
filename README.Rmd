@@ -183,6 +183,7 @@ To be processed...
 Check workbook names and worksheet names for each of the 3 read_excel functions.  
 Check columns to gather and ensure in Excel the columns with metrics are 6 to 53.  
 Adjust both the year and pumpkin ID variables to reflect year 2020.  
+Remove or correct data errors/outliers.  
 
 ```{r readExcel2020spacing, cache=TRUE}
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA records
@@ -235,8 +236,16 @@ spacingDataRaw2020 <- select(spacingDataRaw2020,c(1,2,3,13,12,4,5,6,7,8,9,10,11)
 # Create clean table for further transformations
 spacingData2020 <- as_tibble(spacingDataRaw2020)
 
-# Remove bad pumpkins ... NEED TO CONFIRM WITH CLIENT
+# Remove or correct errors/outliers that still remain after inner join
+# 2020 spacing study, plot 102, delete fruit 28 - no weight data taken since it was rotten
 spacingData2020 <- subset(spacingData2020, weight!="rotten")
+# 2020 spacing study, plot 201, correct fruit 17 - weight is 33.2 not 3.2
+if(sum(spacingData2020$pumpkinID=="2020-S-201-17")==1) {
+  w <- which(spacingData2020$pumpkinID=="2020-S-201-17")
+  spacingData2020$weight[w] <- "33.2"
+} else{
+    stop("Weight outlier from 2020 spacing study, plot 201, pumpkin 17 could not be found and corrected.")
+  }
 ```  
 
 #### 2021 Data  
@@ -308,7 +317,11 @@ spacingData$color <- as.factor(spacingData$color)
 spacingData <- mutate(spacingData,spacingArea=sapply(strsplit(as.character(spacingDim),split=" x "),function(x) prod(as.numeric(x))))
 spacingData$spacingArea <- as.factor(spacingData$spacingArea)
 spacingData$spacingDim <- as.character(spacingData$spacingDim)
+
+# Ensure metrics are all numerical
+spacingData$weight <- as.numeric(spacingData$weight)
 spacingData$length <- as.numeric(spacingData$length)
+spacingData$diameter <- as.numeric(spacingData$diameter)
 
 # Create variable for realized ideal stand count percentage
 spacingData <- mutate(spacingData,standCountIdealPct=standCount/standCountIdeal)
@@ -368,6 +381,8 @@ plot(spacingData$length,spacingData$diameter,
 ```
 
 # Analysis  
+
+To be conducted...  
 
 # Conclusions  
 

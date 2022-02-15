@@ -265,7 +265,8 @@ Check workbook names and worksheet names for each of the 3 read\_excel
 functions.  
 Check columns to gather and ensure in Excel the columns with metrics are
 6 to 53.  
-Adjust both the year and pumpkin ID variables to reflect year 2020.
+Adjust both the year and pumpkin ID variables to reflect year 2020.  
+Remove or correct data errors/outliers.
 
 ``` r
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA
@@ -345,8 +346,18 @@ spacingDataRaw2020 <- select(spacingDataRaw2020, c(1, 2, 3, 13, 12, 4,
 # Create clean table for further transformations
 spacingData2020 <- as_tibble(spacingDataRaw2020)
 
-# Remove bad pumpkins ... NEED TO CONFIRM WITH CLIENT
+# Remove or correct errors/outliers that still remain after inner join
+# 2020 spacing study, plot 102, delete fruit 28 - no weight data taken
+# since it was rotten
 spacingData2020 <- subset(spacingData2020, weight != "rotten")
+# 2020 spacing study, plot 201, correct fruit 17 - weight is 33.2 not
+# 3.2
+if (sum(spacingData2020$pumpkinID == "2020-S-201-17") == 1) {
+    w <- which(spacingData2020$pumpkinID == "2020-S-201-17")
+    spacingData2020$weight[w] <- "33.2"
+} else {
+    stop("Weight outlier from 2020 spacing study, plot 201, pumpkin 17 could not be found and corrected.")
+}
 ```
 
 #### 2021 Data
@@ -442,7 +453,11 @@ spacingData <- mutate(spacingData, spacingArea = sapply(strsplit(as.character(sp
     split = " x "), function(x) prod(as.numeric(x))))
 spacingData$spacingArea <- as.factor(spacingData$spacingArea)
 spacingData$spacingDim <- as.character(spacingData$spacingDim)
+
+# Ensure metrics are all numerical
+spacingData$weight <- as.numeric(spacingData$weight)
 spacingData$length <- as.numeric(spacingData$length)
+spacingData$diameter <- as.numeric(spacingData$diameter)
 
 # Create variable for realized ideal stand count percentage
 spacingData <- mutate(spacingData, standCountIdealPct = standCount/standCountIdeal)
@@ -482,7 +497,7 @@ str(spacingData)
     ##  $ standCountIdeal   : num [1:1259] 80 40 28 20 40 20 14 10 28 80 ...
     ##  $ standCountIdealPct: num [1:1259] 0.988 1 1 1 1 ...
     ##  $ color             : Factor w/ 2 levels "Green","Orange": 1 1 2 1 1 2 2 2 2 2 ...
-    ##  $ weight            : chr [1:1259] "17" "9.8" "40.7" "37" ...
+    ##  $ weight            : num [1:1259] 17 9.8 40.7 37 22.9 19.8 25.7 27.6 22.8 12.6 ...
     ##  $ length            : num [1:1259] 11.1 9.3 16.1 13.5 11.5 11.4 12.7 12.9 12.3 10.1 ...
     ##  $ diameter          : num [1:1259] 11.3 10.1 15.8 15.2 12.3 12.6 13.5 14.3 13.1 10.1 ...
     ##  $ volumeEllipsoid   : num [1:1259] 742 497 2104 1633 911 ...
@@ -506,7 +521,7 @@ spacingData
     ## 10 2020-S-2~ 2020  202   2     1                  1 10          10 x 1    
     ## # ... with 1,249 more rows, and 10 more variables: betweenRow <fct>,
     ## #   inRow <fct>, standCount <dbl>, standCountIdeal <dbl>,
-    ## #   standCountIdealPct <dbl>, color <fct>, weight <chr>, length <dbl>,
+    ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
     ## #   diameter <dbl>, volumeEllipsoid <dbl>
 
 ``` r
@@ -553,6 +568,8 @@ plot(spacingData$length, spacingData$diameter, xlab = "Length (in)", ylab = "Dia
 ```
 
 # Analysis
+
+To be conducted…
 
 # Conclusions
 
