@@ -668,6 +668,10 @@ write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
 # Export R data objects to RData file
 save(spacingData, nitrogenWeight, file = "pumpkinData.RData")
 
+# Export R data objects to SAS format This is not possible with Haven
+# package I have a separate SAS script that imports the created Excel
+# file and transforms to SAS data file
+
 # Change directory back to primary project
 setwd("..")
 
