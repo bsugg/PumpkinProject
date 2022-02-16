@@ -214,7 +214,24 @@ worksheets for the spacing study:
 
 #### Nitrogen Study
 
-To be processed…
+The below formatting steps were followed for the weight worksheet from
+the nitrogen study:
+
+1.  Removed empty column A, so the table starts in column A  
+2.  Removed empty rows between records that were separating `reps`  
+3.  Checked column B - `Nitrogen Rate` to ensure all values were spaced
+    with 1 space between the number and unit of measure, and no spaces
+    within the unit of measure
+      - Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
+4.  Renamed worksheet to `Nitrogen Weights (lbs) Orange`  
+5.  Created a copy of the worksheet, and renamed the copy as `Nitrogen
+    Weights (lbs) Green`  
+6.  In the `Nitrogen Weights (lbs) Orange` worksheet:
+      - Deleted columns V through AT to remove all green pumpkin data  
+      - Deleted the top row so all column headers move up to row 1  
+7.  In the `Nitrogen Weights (lbs) Green` worksheet:
+      - Deleted columns G through V to remove all green pumpkin data  
+      - Deleted the top row so all column headers move up to row 1
 
 #### Leaf Composition Study
 
@@ -427,7 +444,55 @@ spacingDataRaw2021 <- inner_join(spacingDataRaw2021, spacingDiameter)
 spacingData2021 <- as_tibble(spacingDataRaw2021)
 ```
 
+### Nitrogen Study
+
+#### 2021 Data
+
+Check workbook names and worksheet names for each of the 3 read\_excel
+functions.
+
+``` r
+# Read sheet with WEIGHTS for orange pumpkins, transform from wide to
+# tall, remove NA records
+nitrogenWeightOrange <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Nitrogen Weights (lbs) Orange")
+nitrogenWeightOrange <- gather(nitrogenWeightOrange, key = "Pumpkin", value = "Weight", 
+    7:21)
+nitrogenWeightOrange <- subset(nitrogenWeightOrange, !is.na(Weight))
+# Rename columns
+names(nitrogenWeightOrange) <- c("plot", "nitrogenRate", "treatment", "rep", 
+    "standCount", "standCountIdeal", "pumpkinNum", "weight")
+# Create variable for color
+nitrogenWeightOrange <- mutate(nitrogenWeightOrange, color = "Orange")
+# Create unique identifier for each pumpkin
+nitrogenWeightOrange <- mutate(nitrogenWeightOrange, year = "2021")
+nitrogenWeightOrange <- mutate(nitrogenWeightOrange, pumpkinID = paste0(year, 
+    "-", "N", "-", plot, "-", color, "-", pumpkinNum))
+
+# Read sheet with WEIGHTS for green pumpkins, transform from wide to
+# tall, remove NA records
+nitrogenWeightGreen <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Nitrogen Weights (lbs) Green")
+nitrogenWeightGreen <- gather(nitrogenWeightGreen, key = "Pumpkin", value = "Weight", 
+    7:30)
+nitrogenWeightGreen <- subset(nitrogenWeightGreen, !is.na(Weight))
+# Rename columns
+names(nitrogenWeightGreen) <- c("plot", "nitrogenRate", "treatment", "rep", 
+    "standCount", "standCountIdeal", "pumpkinNum", "weight")
+# Create variable for color
+nitrogenWeightGreen <- mutate(nitrogenWeightGreen, color = "Green")
+# Create unique identifier for each pumpkin
+nitrogenWeightGreen <- mutate(nitrogenWeightGreen, year = "2021")
+nitrogenWeightGreen <- mutate(nitrogenWeightGreen, pumpkinID = paste0(year, 
+    "-", "N", "-", plot, "-", color, "-", pumpkinNum))
+
+# Combine all weights into one tibble
+nitrogenWeight <- rbind(nitrogenWeightOrange, nitrogenWeightGreen)
+```
+
 ## Data Transformation
+
+### Spacing Study
 
 ``` r
 # Stack the 2020 and 2021 data sets into one tibble
@@ -526,15 +591,82 @@ spacingData
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
     ## #   diameter <dbl>, volumeEllipsoid <dbl>
 
+### Nitrogen Study
+
+#### Weight
+
+``` r
+# Format variables
+nitrogenWeight$plot <- as.factor(nitrogenWeight$plot)
+nitrogenWeight$nitrogenRate <- as.factor(nitrogenWeight$nitrogenRate)
+nitrogenWeight$treatment <- as.factor(nitrogenWeight$treatment)
+nitrogenWeight$rep <- as.factor(nitrogenWeight$rep)
+nitrogenWeight$pumpkinNum <- as.numeric(nitrogenWeight$pumpkinNum)
+nitrogenWeight$color <- as.factor(nitrogenWeight$color)
+nitrogenWeight$year <- as.factor(nitrogenWeight$year)
+
+# Ensure metrics are all numerical
+nitrogenWeight$weight <- as.numeric(nitrogenWeight$weight)
+
+# Create variable for realized ideal stand count percentage
+nitrogenWeight <- mutate(nitrogenWeight, standCountIdealPct = standCount/standCountIdeal)
+
+# Arrange columns for presentation of final table for spacing data
+nitrogenWeight <- select(nitrogenWeight, c(11, 10, 1, 4, 3, 7, 2, 5, 6, 
+    12, 9, 8))
+
+# Provide structure of transformed variables with data preview
+str(nitrogenWeight)
+```
+
+    ## tibble [618 x 12] (S3: tbl_df/tbl/data.frame)
+    ##  $ pumpkinID         : chr [1:618] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
+    ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
+    ##  $ pumpkinNum        : num [1:618] 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
+    ##  $ standCount        : num [1:618] 7 6 7 6 7 3 7 7 8 8 ...
+    ##  $ standCountIdeal   : num [1:618] 8 8 8 8 8 8 8 8 8 8 ...
+    ##  $ standCountIdealPct: num [1:618] 0.875 0.75 0.875 0.75 0.875 0.375 0.875 0.875 1 1 ...
+    ##  $ color             : Factor w/ 2 levels "Green","Orange": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ weight            : num [1:618] 30.9 24.2 31.4 24.5 16.2 29.4 23.4 20.6 31.4 26.2 ...
+
+``` r
+nitrogenWeight
+```
+
+    ## # A tibble: 618 x 12
+    ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
+    ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
+    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ## # ... with 608 more rows, and 4 more variables: standCountIdeal <dbl>,
+    ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>
+
+#### All Measures
+
+### Save Clean Data
+
 ``` r
 # Change directory to clean data folder
 setwd("./CleanData/")
 
 # Export R data object to Excel for client review
 write_xlsx(spacingData, "spacingData.xlsx")
+write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
 
 # Export R data objects to RData file
-save(spacingData, file = "pumpkinData.RData")
+save(spacingData, nitrogenWeight, file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
@@ -543,7 +675,7 @@ setwd("..")
 setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
-save(spacingData, file = "pumpkinData.RData")
+save(spacingData, nitrogenWeight, file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
