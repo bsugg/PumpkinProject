@@ -271,7 +271,7 @@ Remove or correct data errors/outliers.
 ``` r
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA
 # records
-spacingWeight <- read_excel(path = "2020pumpkinData.xlsx", sheet = "Spacing Weight")
+spacingWeight <- read_excel(path = "./RawData/2020pumpkinData.xlsx", sheet = "Spacing Weight")
 spacingWeight <- gather(spacingWeight, key = "Pumpkin", value = "Weight", 
     6:53)
 spacingWeight <- subset(spacingWeight, !is.na(Weight))
@@ -285,7 +285,7 @@ spacingWeight <- mutate(spacingWeight, pumpkinID = paste0(year, "-", "S",
 
 # Read sheet with LENGTHS, transform from wide to tall, remove NA
 # records
-spacingLength <- read_excel(path = "2020pumpkinData.xlsx", sheet = "Spacing Length")
+spacingLength <- read_excel(path = "./RawData/2020pumpkinData.xlsx", sheet = "Spacing Length")
 spacingLength <- gather(spacingLength, key = "Pumpkin", value = "Length", 
     6:52)
 spacingLength <- subset(spacingLength, !is.na(Length))
@@ -299,7 +299,8 @@ spacingLength <- mutate(spacingLength, pumpkinID = paste0(year, "-", "S",
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA
 # records
-spacingDiameter <- read_excel(path = "2020pumpkinData.xlsx", sheet = "Spacing Diameter")
+spacingDiameter <- read_excel(path = "./RawData/2020pumpkinData.xlsx", 
+    sheet = "Spacing Diameter")
 spacingDiameter <- gather(spacingDiameter, key = "Pumpkin", value = "Diameter", 
     6:52)
 spacingDiameter <- subset(spacingDiameter, !is.na(Diameter))
@@ -325,7 +326,7 @@ spacingDataRaw2020 <- inner_join(spacingDataRaw2020, spacingDiameter)
 
 ``` r
 # Read sheet with stand count data
-spacingStand <- read_excel(path = "2020standCount.xlsx", sheet = "Sheet1")
+spacingStand <- read_excel(path = "./RawData/2020standCount.xlsx", sheet = "Sheet1")
 # Rename columns
 names(spacingStand) <- c("treatment", "spacingDim", "plot", "standCountIdeal", 
     "standCount")
@@ -368,7 +369,7 @@ functions.
 ``` r
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA
 # records
-spacingWeight <- read_excel(path = "2021pumpkinData.xlsx", sheet = "Spacing Weights (lbs)")
+spacingWeight <- read_excel(path = "./RawData/2021pumpkinData.xlsx", sheet = "Spacing Weights (lbs)")
 spacingWeight <- gather(spacingWeight, key = "Pumpkin", value = "Weight", 
     8:55)
 spacingWeight <- subset(spacingWeight, !is.na(Weight))
@@ -382,7 +383,7 @@ spacingWeight <- mutate(spacingWeight, pumpkinID = paste0(year, "-", "S",
 
 # Read sheet with LENGTHS, transform from wide to tall, remove NA
 # records
-spacingLength <- read_excel(path = "2021pumpkinData.xlsx", sheet = "Spacing Lengths (inches)")
+spacingLength <- read_excel(path = "./RawData/2021pumpkinData.xlsx", sheet = "Spacing Lengths (inches)")
 spacingLength <- gather(spacingLength, key = "Pumpkin", value = "Length", 
     8:55)
 spacingLength <- subset(spacingLength, !is.na(Length))
@@ -396,7 +397,8 @@ spacingLength <- mutate(spacingLength, pumpkinID = paste0(year, "-", "S",
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA
 # records
-spacingDiameter <- read_excel(path = "2021pumpkinData.xlsx", sheet = "Spacing Diameters (inches)")
+spacingDiameter <- read_excel(path = "./RawData/2021pumpkinData.xlsx", 
+    sheet = "Spacing Diameters (inches)")
 spacingDiameter <- gather(spacingDiameter, key = "Pumpkin", value = "Diameter", 
     8:55)
 spacingDiameter <- subset(spacingDiameter, !is.na(Diameter))
@@ -525,8 +527,17 @@ spacingData
     ## #   diameter <dbl>, volumeEllipsoid <dbl>
 
 ``` r
+# Change directory to clean data folder
+setwd("./CleanData/")
+
 # Export R data object to Excel for client review
 write_xlsx(spacingData, "spacingData.xlsx")
+
+# Export R data objects to RData file
+save(spacingData, file = "pumpkinData.RData")
+
+# Change directory back to primary project
+setwd("..")
 ```
 
 # Data Exploration
