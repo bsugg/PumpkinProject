@@ -538,6 +538,15 @@ save(spacingData, file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
+
+# Change directory to R Shiny
+setwd("./ShinyPumpkinProject/")
+
+# Export R data objects to RData file
+save(spacingData, file = "pumpkinData.RData")
+
+# Change directory back to primary project
+setwd("..")
 ```
 
 # Data Exploration
