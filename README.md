@@ -214,14 +214,14 @@ worksheets for the spacing study:
 
 #### Nitrogen Study
 
-The below formatting steps were followed for the weight worksheet from
-the nitrogen study:
+The below formatting steps were followed for the `Nitrogen Weights
+(lbs)` worksheet:
 
 1.  Removed empty column A, so the table starts in column A  
 2.  Removed empty rows between records that were separating `reps`  
 3.  Checked column B - `Nitrogen Rate` to ensure all values were spaced
     with 1 space between the number and unit of measure, and no spaces
-    within the unit of measure
+    were within the unit of measure
       - Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
 4.  Renamed worksheet to `Nitrogen Weights (lbs) Orange`  
 5.  Created a copy of the worksheet, and renamed the copy as `Nitrogen
@@ -230,7 +230,52 @@ the nitrogen study:
       - Deleted columns V through AT to remove all green pumpkin data  
       - Deleted the top row so all column headers move up to row 1  
 7.  In the `Nitrogen Weights (lbs) Green` worksheet:
-      - Deleted columns G through V to remove all green pumpkin data  
+      - Deleted columns G through V to remove all orange pumpkin data  
+      - Deleted the top row so all column headers move up to row 1
+
+The below formatting steps were followed for the `Nitrogen Lengths
+(inches)` worksheet:
+
+1.  Removed empty column A, so the table starts in column A  
+2.  Removed empty rows between records that were separating `reps`  
+3.  Checked column B - `Nitrogen Rate` to ensure all values were spaced
+    with 1 space between the number and unit of measure, no spaces were
+    within the unit of measure, and no extra forward slashes were
+    present
+      - Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
+      - Example: Adjusted `200 /lbs/acre` to `200 lbs/acre` for
+        consistency  
+4.  Renamed worksheet to `Nitrogen Lengths (inches) O`
+      - Note: Spelling out “Orange” was too many characters for a
+        worksheet name  
+5.  Created a copy of the worksheet, and renamed the copy as `Nitrogen
+    Lengths (inches) G`  
+6.  In the `Nitrogen Lengths (inches) O` worksheet:
+      - Deleted columns L through P to remove all green pumpkin data  
+      - Deleted the top row so all column headers move up to row 1  
+7.  In the `Nitrogen Lengths (inches) G` worksheet:
+      - Deleted columns G through L to remove all orange pumpkin data  
+      - Deleted the top row so all column headers move up to row 1
+
+The below formatting steps were followed for the `Nitrogen Diameters
+(inches)` worksheet:
+
+1.  Removed empty column A, so the table starts in column A  
+2.  Removed empty rows between records that were separating `reps`  
+3.  Checked column B - `Nitrogen Rate` to ensure all values were spaced
+    with 1 space between the number and unit of measure, and no spaces
+    were within the unit of measure
+      - Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
+4.  Renamed worksheet to `Nitrogen Diameters (inches) O`
+      - Note: Spelling out “Orange” was too many characters for a
+        worksheet name  
+5.  Created a copy of the worksheet, and renamed the copy as `Nitrogen
+    Diameters (inches) G`  
+6.  In the `Nitrogen Diameters (inches) O` worksheet:
+      - Deleted columns L through P to remove all green pumpkin data  
+      - Deleted the top row so all column headers move up to row 1  
+7.  In the `Nitrogen Diameters (inches) G` worksheet:
+      - Deleted columns G through L to remove all orange pumpkin data  
       - Deleted the top row so all column headers move up to row 1
 
 #### Leaf Composition Study
@@ -488,6 +533,43 @@ nitrogenWeightGreen <- mutate(nitrogenWeightGreen, pumpkinID = paste0(year,
 
 # Combine all weights into one tibble
 nitrogenWeight <- rbind(nitrogenWeightOrange, nitrogenWeightGreen)
+
+# Read sheet with LENGTHS for orange pumpkins, transform from wide to
+# tall, remove NA records
+nitrogenLengthOrange <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Nitrogen Lengths (inches) O")
+nitrogenLengthOrange <- gather(nitrogenLengthOrange, key = "Pumpkin", value = "Length", 
+    7:11)
+nitrogenLengthOrange <- subset(nitrogenLengthOrange, !is.na(Length))
+# Rename columns
+names(nitrogenLengthOrange) <- c("plot", "nitrogenRate", "treatment", "rep", 
+    "standCount", "standCountIdeal", "pumpkinNum", "length")
+# Create variable for color
+nitrogenLengthOrange <- mutate(nitrogenLengthOrange, color = "Orange")
+# Create unique identifier for each pumpkin
+nitrogenLengthOrange <- mutate(nitrogenLengthOrange, year = "2021")
+nitrogenLengthOrange <- mutate(nitrogenLengthOrange, pumpkinID = paste0(year, 
+    "-", "N", "-", plot, "-", color, "-", pumpkinNum))
+
+# Read sheet with LENGTHS for green pumpkins, transform from wide to
+# tall, remove NA records
+nitrogenLengthGreen <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Nitrogen Lengths (inches) G")
+nitrogenLengthGreen <- gather(nitrogenLengthGreen, key = "Pumpkin", value = "Length", 
+    7:10)
+nitrogenLengthGreen <- subset(nitrogenLengthGreen, !is.na(Length))
+# Rename columns
+names(nitrogenLengthGreen) <- c("plot", "nitrogenRate", "treatment", "rep", 
+    "standCount", "standCountIdeal", "pumpkinNum", "length")
+# Create variable for color
+nitrogenLengthGreen <- mutate(nitrogenLengthGreen, color = "Green")
+# Create unique identifier for each pumpkin
+nitrogenLengthGreen <- mutate(nitrogenLengthGreen, year = "2021")
+nitrogenLengthGreen <- mutate(nitrogenLengthGreen, pumpkinID = paste0(year, 
+    "-", "N", "-", plot, "-", color, "-", pumpkinNum))
+
+# Combine all lengths into one tibble
+nitrogenLength <- rbind(nitrogenLengthOrange, nitrogenLengthGreen)
 ```
 
 ## Data Transformation
@@ -653,6 +735,66 @@ nitrogenWeight
     ## # ... with 608 more rows, and 4 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>
 
+#### Length
+
+``` r
+# Format variables
+nitrogenLength$plot <- as.factor(nitrogenLength$plot)
+nitrogenLength$nitrogenRate <- as.factor(nitrogenLength$nitrogenRate)
+nitrogenLength$treatment <- as.factor(nitrogenLength$treatment)
+nitrogenLength$rep <- as.factor(nitrogenLength$rep)
+nitrogenLength$pumpkinNum <- as.numeric(nitrogenLength$pumpkinNum)
+nitrogenLength$color <- as.factor(nitrogenLength$color)
+nitrogenLength$year <- as.factor(nitrogenLength$year)
+
+# Ensure metrics are all numerical
+nitrogenLength$length <- as.numeric(nitrogenLength$length)
+
+# Create variable for realized ideal stand count percentage
+nitrogenLength <- mutate(nitrogenLength, standCountIdealPct = standCount/standCountIdeal)
+
+# Arrange columns for presentation of final table for spacing data
+nitrogenLength <- select(nitrogenLength, c(11, 10, 1, 4, 3, 7, 2, 5, 6, 
+    12, 9, 8))
+
+# Provide structure of transformed variables with data preview
+str(nitrogenLength)
+```
+
+    ## tibble [120 x 12] (S3: tbl_df/tbl/data.frame)
+    ##  $ pumpkinID         : chr [1:120] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
+    ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
+    ##  $ pumpkinNum        : num [1:120] 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
+    ##  $ standCount        : num [1:120] 7 6 7 6 7 3 7 7 8 8 ...
+    ##  $ standCountIdeal   : num [1:120] 8 8 8 8 8 8 8 8 8 8 ...
+    ##  $ standCountIdealPct: num [1:120] 0.875 0.75 0.875 0.75 0.875 0.375 0.875 0.875 1 1 ...
+    ##  $ color             : Factor w/ 2 levels "Green","Orange": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ length            : num [1:120] 13.6 12.5 13.9 12.5 10.1 12.3 12.5 12 13.7 13 ...
+
+``` r
+nitrogenLength
+```
+
+    ## # A tibble: 120 x 12
+    ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
+    ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
+    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ## # ... with 110 more rows, and 4 more variables: standCountIdeal <dbl>,
+    ## #   standCountIdealPct <dbl>, color <fct>, length <dbl>
+
 #### All Measures
 
 ### Save Clean Data
@@ -664,9 +806,10 @@ setwd("./CleanData/")
 # Export R data object to Excel for client review
 write_xlsx(spacingData, "spacingData.xlsx")
 write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
+write_xlsx(nitrogenLength, "nitrogenLength.xlsx")
 
 # Export R data objects to RData file
-save(spacingData, nitrogenWeight, file = "pumpkinData.RData")
+save(spacingData, nitrogenWeight, nitrogenLength, file = "pumpkinData.RData")
 
 # Export R data objects to SAS format This is not possible with Haven
 # package I have a separate SAS script that imports the created Excel
@@ -679,7 +822,7 @@ setwd("..")
 setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
-save(spacingData, nitrogenWeight, file = "pumpkinData.RData")
+save(spacingData, nitrogenWeight, nitrogenLength, file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
