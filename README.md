@@ -534,6 +534,8 @@ nitrogenWeightGreen <- mutate(nitrogenWeightGreen, pumpkinID = paste0(year,
 # Combine all weights into one tibble
 nitrogenWeight <- rbind(nitrogenWeightOrange, nitrogenWeightGreen)
 
+########################## 
+
 # Read sheet with LENGTHS for orange pumpkins, transform from wide to
 # tall, remove NA records
 nitrogenLengthOrange <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
@@ -570,6 +572,45 @@ nitrogenLengthGreen <- mutate(nitrogenLengthGreen, pumpkinID = paste0(year,
 
 # Combine all lengths into one tibble
 nitrogenLength <- rbind(nitrogenLengthOrange, nitrogenLengthGreen)
+
+########################## 
+
+# Read sheet with DIAMETERS for orange pumpkins, transform from wide to
+# tall, remove NA records
+nitrogenDiameterOrange <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Nitrogen Diameters (inches) O")
+nitrogenDiameterOrange <- gather(nitrogenDiameterOrange, key = "Pumpkin", 
+    value = "Diameter", 7:11)
+nitrogenDiameterOrange <- subset(nitrogenDiameterOrange, !is.na(Diameter))
+# Rename columns
+names(nitrogenDiameterOrange) <- c("plot", "nitrogenRate", "treatment", 
+    "rep", "standCount", "standCountIdeal", "pumpkinNum", "diameter")
+# Create variable for color
+nitrogenDiameterOrange <- mutate(nitrogenDiameterOrange, color = "Orange")
+# Create unique identifier for each pumpkin
+nitrogenDiameterOrange <- mutate(nitrogenDiameterOrange, year = "2021")
+nitrogenDiameterOrange <- mutate(nitrogenDiameterOrange, pumpkinID = paste0(year, 
+    "-", "N", "-", plot, "-", color, "-", pumpkinNum))
+
+# Read sheet with DIAMETERS for green pumpkins, transform from wide to
+# tall, remove NA records
+nitrogenDiameterGreen <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Nitrogen Diameters (inches) G")
+nitrogenDiameterGreen <- gather(nitrogenDiameterGreen, key = "Pumpkin", 
+    value = "Diameter", 7:10)
+nitrogenDiameterGreen <- subset(nitrogenDiameterGreen, !is.na(Diameter))
+# Rename columns
+names(nitrogenDiameterGreen) <- c("plot", "nitrogenRate", "treatment", 
+    "rep", "standCount", "standCountIdeal", "pumpkinNum", "diameter")
+# Create variable for color
+nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen, color = "Green")
+# Create unique identifier for each pumpkin
+nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen, year = "2021")
+nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen, pumpkinID = paste0(year, 
+    "-", "N", "-", plot, "-", color, "-", pumpkinNum))
+
+# Combine all diameters into one tibble
+nitrogenDiameter <- rbind(nitrogenDiameterOrange, nitrogenDiameterGreen)
 ```
 
 ## Data Transformation
@@ -795,6 +836,66 @@ nitrogenLength
     ## # ... with 110 more rows, and 4 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, length <dbl>
 
+#### Diameter
+
+``` r
+# Format variables
+nitrogenDiameter$plot <- as.factor(nitrogenDiameter$plot)
+nitrogenDiameter$nitrogenRate <- as.factor(nitrogenDiameter$nitrogenRate)
+nitrogenDiameter$treatment <- as.factor(nitrogenDiameter$treatment)
+nitrogenDiameter$rep <- as.factor(nitrogenDiameter$rep)
+nitrogenDiameter$pumpkinNum <- as.numeric(nitrogenDiameter$pumpkinNum)
+nitrogenDiameter$color <- as.factor(nitrogenDiameter$color)
+nitrogenDiameter$year <- as.factor(nitrogenDiameter$year)
+
+# Ensure metrics are all numerical
+nitrogenDiameter$diameter <- as.numeric(nitrogenDiameter$diameter)
+
+# Create variable for realized ideal stand count percentage
+nitrogenDiameter <- mutate(nitrogenDiameter, standCountIdealPct = standCount/standCountIdeal)
+
+# Arrange columns for presentation of final table for spacing data
+nitrogenDiameter <- select(nitrogenDiameter, c(11, 10, 1, 4, 3, 7, 2, 5, 
+    6, 12, 9, 8))
+
+# Provide structure of transformed variables with data preview
+str(nitrogenDiameter)
+```
+
+    ## tibble [120 x 12] (S3: tbl_df/tbl/data.frame)
+    ##  $ pumpkinID         : chr [1:120] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
+    ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
+    ##  $ pumpkinNum        : num [1:120] 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
+    ##  $ standCount        : num [1:120] 7 6 7 6 7 3 7 7 8 8 ...
+    ##  $ standCountIdeal   : num [1:120] 8 8 8 8 8 8 8 8 8 8 ...
+    ##  $ standCountIdealPct: num [1:120] 0.875 0.75 0.875 0.75 0.875 0.375 0.875 0.875 1 1 ...
+    ##  $ color             : Factor w/ 2 levels "Green","Orange": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ diameter          : num [1:120] 15.1 13.7 14.9 13.5 11.7 14.6 12.7 12.3 14.6 13.3 ...
+
+``` r
+nitrogenDiameter
+```
+
+    ## # A tibble: 120 x 12
+    ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
+    ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
+    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ## # ... with 110 more rows, and 4 more variables: standCountIdeal <dbl>,
+    ## #   standCountIdealPct <dbl>, color <fct>, diameter <dbl>
+
 #### All Measures
 
 ### Save Clean Data
@@ -803,13 +904,14 @@ nitrogenLength
 # Change directory to clean data folder
 setwd("./CleanData/")
 
-# Export R data object to Excel for client review
+# Export R data object to Excel
 write_xlsx(spacingData, "spacingData.xlsx")
 write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
 write_xlsx(nitrogenLength, "nitrogenLength.xlsx")
+write_xlsx(nitrogenDiameter, "nitrogenDiameter.xlsx")
 
 # Export R data objects to RData file
-save(spacingData, nitrogenWeight, nitrogenLength, file = "pumpkinData.RData")
+save(spacingData, nitrogenWeight, nitrogenLength, nitrogenDiameter, file = "pumpkinData.RData")
 
 # Export R data objects to SAS format This is not possible with Haven
 # package I have a separate SAS script that imports the created Excel
@@ -822,7 +924,7 @@ setwd("..")
 setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
-save(spacingData, nitrogenWeight, nitrogenLength, file = "pumpkinData.RData")
+save(spacingData, nitrogenWeight, nitrogenLength, nitrogenDiameter, file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")

@@ -372,6 +372,8 @@ nitrogenWeightGreen <- mutate(nitrogenWeightGreen,pumpkinID=paste0(year,"-","N",
 # Combine all weights into one tibble
 nitrogenWeight <- rbind(nitrogenWeightOrange,nitrogenWeightGreen)
 
+##########################
+
 # Read sheet with LENGTHS for orange pumpkins, transform from wide to tall, remove NA records
 nitrogenLengthOrange <- read_excel(path="./ReadData/2021pumpkinData.xlsx", sheet="Nitrogen Lengths (inches) O")
 nitrogenLengthOrange <- gather(nitrogenLengthOrange,key="Pumpkin",value="Length",7:11)
@@ -398,6 +400,35 @@ nitrogenLengthGreen <- mutate(nitrogenLengthGreen,pumpkinID=paste0(year,"-","N",
 
 # Combine all lengths into one tibble
 nitrogenLength <- rbind(nitrogenLengthOrange,nitrogenLengthGreen)
+
+##########################
+
+# Read sheet with DIAMETERS for orange pumpkins, transform from wide to tall, remove NA records
+nitrogenDiameterOrange <- read_excel(path="./ReadData/2021pumpkinData.xlsx", sheet="Nitrogen Diameters (inches) O")
+nitrogenDiameterOrange <- gather(nitrogenDiameterOrange,key="Pumpkin",value="Diameter",7:11)
+nitrogenDiameterOrange <- subset(nitrogenDiameterOrange,!is.na(Diameter))
+# Rename columns
+names(nitrogenDiameterOrange) <- c("plot","nitrogenRate","treatment","rep","standCount","standCountIdeal","pumpkinNum","diameter")
+# Create variable for color
+nitrogenDiameterOrange <- mutate(nitrogenDiameterOrange,color="Orange")
+# Create unique identifier for each pumpkin
+nitrogenDiameterOrange <- mutate(nitrogenDiameterOrange,year="2021")
+nitrogenDiameterOrange <- mutate(nitrogenDiameterOrange,pumpkinID=paste0(year,"-","N","-",plot,"-",color,"-",pumpkinNum))
+
+# Read sheet with DIAMETERS for green pumpkins, transform from wide to tall, remove NA records
+nitrogenDiameterGreen <- read_excel(path="./ReadData/2021pumpkinData.xlsx", sheet="Nitrogen Diameters (inches) G")
+nitrogenDiameterGreen <- gather(nitrogenDiameterGreen,key="Pumpkin",value="Diameter",7:10)
+nitrogenDiameterGreen <- subset(nitrogenDiameterGreen,!is.na(Diameter))
+# Rename columns
+names(nitrogenDiameterGreen) <- c("plot","nitrogenRate","treatment","rep","standCount","standCountIdeal","pumpkinNum","diameter")
+# Create variable for color
+nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen,color="Green")
+# Create unique identifier for each pumpkin
+nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen,year="2021")
+nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen,pumpkinID=paste0(year,"-","N","-",plot,"-",color,"-",pumpkinNum))
+
+# Combine all diameters into one tibble
+nitrogenDiameter <- rbind(nitrogenDiameterOrange,nitrogenDiameterGreen)
 ```  
 
 ## Data Transformation  
@@ -418,7 +449,8 @@ spacingData$year <- as.factor(spacingData$year)
 # Create variable for pumpkin color, populate based on conditional statement, and format
 spacingData <- mutate(spacingData,color="unknown")
 for (i in 1:nrow(spacingData)) {
-  spacingData[i,14] <- if_else(spacingData[i,8] %in% sapply(strsplit(as.character(spacingData[i,7]),split=", "),function(x) as.numeric(x)),
+  spacingData[i,14] <- if_else(spacingData[i,8] %in% sapply(strsplit(as.character(spacingData[i,7]),split=", "),
+                                                            function(x) as.numeric(x)),
                                  "Green",
                                  "Orange")
 }
@@ -509,6 +541,32 @@ str(nitrogenLength)
 nitrogenLength
 ```
 
+#### Diameter  
+
+```{r transformNitrogenDiameterData, cache=TRUE}
+# Format variables
+nitrogenDiameter$plot <- as.factor(nitrogenDiameter$plot)
+nitrogenDiameter$nitrogenRate <- as.factor(nitrogenDiameter$nitrogenRate)
+nitrogenDiameter$treatment <- as.factor(nitrogenDiameter$treatment)
+nitrogenDiameter$rep <- as.factor(nitrogenDiameter$rep)
+nitrogenDiameter$pumpkinNum <- as.numeric(nitrogenDiameter$pumpkinNum)
+nitrogenDiameter$color <- as.factor(nitrogenDiameter$color)
+nitrogenDiameter$year <- as.factor(nitrogenDiameter$year)
+
+# Ensure metrics are all numerical
+nitrogenDiameter$diameter <- as.numeric(nitrogenDiameter$diameter)
+
+# Create variable for realized ideal stand count percentage
+nitrogenDiameter <- mutate(nitrogenDiameter,standCountIdealPct=standCount/standCountIdeal)
+
+# Arrange columns for presentation of final table for spacing data
+nitrogenDiameter <- select(nitrogenDiameter,c(11,10,1,4,3,7,2,5,6,12,9,8))
+
+# Provide structure of transformed variables with data preview
+str(nitrogenDiameter)
+nitrogenDiameter
+```
+
 #### All Measures  
 
 ### Save Clean Data  
@@ -517,13 +575,18 @@ nitrogenLength
 # Change directory to clean data folder
 setwd("./CleanData/")
 
-# Export R data object to Excel for client review
+# Export R data object to Excel
 write_xlsx(spacingData,"spacingData.xlsx")
 write_xlsx(nitrogenWeight,"nitrogenWeight.xlsx")
 write_xlsx(nitrogenLength,"nitrogenLength.xlsx")
+write_xlsx(nitrogenDiameter,"nitrogenDiameter.xlsx")
 
 # Export R data objects to RData file
-save(spacingData,nitrogenWeight,nitrogenLength,file="pumpkinData.RData")
+save(spacingData,
+     nitrogenWeight,
+     nitrogenLength,
+     nitrogenDiameter,
+     file="pumpkinData.RData")
 
 # Export R data objects to SAS format
 #
@@ -538,7 +601,11 @@ setwd("..")
 setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
-save(spacingData,nitrogenWeight,nitrogenLength,file="pumpkinData.RData")
+save(spacingData,
+     nitrogenWeight,
+     nitrogenLength,
+     nitrogenDiameter,
+     file="pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
