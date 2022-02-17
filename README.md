@@ -964,8 +964,8 @@ Note the clean data inventory.
 Point out why there are different nitrogen files.
 
 ``` r
-# Change directory to clean data folder
-setwd("./CleanData/")
+# Change directory to clean data folder for Excel files
+setwd("./CleanData/Excel/")
 
 # Export R data object to Excel
 write_xlsx(spacingData, "spacingData.xlsx")
@@ -974,11 +974,16 @@ write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
 write_xlsx(nitrogenLength, "nitrogenLength.xlsx")
 write_xlsx(nitrogenDiameter, "nitrogenDiameter.xlsx")
 
+# Change directory back to CleanData, then to R
+setwd("..")
+setwd("./R/")
+
 # Export R data objects to RData file
 save(spacingData, nitrogenData, nitrogenWeight, nitrogenLength, nitrogenDiameter, 
     file = "pumpkinData.RData")
 
-# Change directory back to primary project
+# Change directory back to CleanData, then back to primary project
+setwd("..")
 setwd("..")
 
 # Change directory to R Shiny
