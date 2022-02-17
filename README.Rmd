@@ -1,6 +1,6 @@
 ---
 title: "Project Phases"
-date: "Last Update: 2/15/2022"
+date: "Last Update: 2/16/2022"
 output:
   rmarkdown::github_document:
     toc: false
@@ -569,7 +569,20 @@ nitrogenDiameter
 
 #### All Measures  
 
+```{r transformNitrogenData, cache=TRUE}
+# Join all nitrogen metrics into one table
+nitrogenData <- inner_join(nitrogenWeight,nitrogenLength)
+nitrogenData <- inner_join(nitrogenData,nitrogenDiameter)
+
+# Provide structure of transformed variables with data preview
+str(nitrogenData)
+nitrogenData
+```
+
 ### Save Clean Data  
+
+Note the clean data inventory.  
+Point out why there are different nitrogen files.  
 
 ```{r saveData}
 # Change directory to clean data folder
@@ -577,22 +590,18 @@ setwd("./CleanData/")
 
 # Export R data object to Excel
 write_xlsx(spacingData,"spacingData.xlsx")
+write_xlsx(nitrogenData,"nitrogenData.xlsx")
 write_xlsx(nitrogenWeight,"nitrogenWeight.xlsx")
 write_xlsx(nitrogenLength,"nitrogenLength.xlsx")
 write_xlsx(nitrogenDiameter,"nitrogenDiameter.xlsx")
 
 # Export R data objects to RData file
 save(spacingData,
+     nitrogenData,
      nitrogenWeight,
      nitrogenLength,
      nitrogenDiameter,
      file="pumpkinData.RData")
-
-# Export R data objects to SAS format
-#
-## This is not possible with Haven package
-## I have a separate SAS script that imports the created Excel file and transforms to SAS data file
-#
 
 # Change directory back to primary project
 setwd("..")
@@ -602,6 +611,7 @@ setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
 save(spacingData,
+     nitrogenData,
      nitrogenWeight,
      nitrogenLength,
      nitrogenDiameter,

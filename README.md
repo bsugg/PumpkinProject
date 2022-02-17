@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 2/15/2022
+Last Update: 2/16/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -898,7 +898,65 @@ nitrogenDiameter
 
 #### All Measures
 
+``` r
+# Join all nitrogen metrics into one table
+nitrogenData <- inner_join(nitrogenWeight, nitrogenLength)
+```
+
+    ## Joining, by = c("pumpkinID", "year", "plot", "rep", "treatment", "pumpkinNum", "nitrogenRate", "standCount", "standCountIdeal", "standCountIdealPct", "color")
+
+``` r
+nitrogenData <- inner_join(nitrogenData, nitrogenDiameter)
+```
+
+    ## Joining, by = c("pumpkinID", "year", "plot", "rep", "treatment", "pumpkinNum", "nitrogenRate", "standCount", "standCountIdeal", "standCountIdealPct", "color")
+
+``` r
+# Provide structure of transformed variables with data preview
+str(nitrogenData)
+```
+
+    ## tibble [120 x 14] (S3: tbl_df/tbl/data.frame)
+    ##  $ pumpkinID         : chr [1:120] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
+    ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
+    ##  $ pumpkinNum        : num [1:120] 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
+    ##  $ standCount        : num [1:120] 7 6 7 6 7 3 7 7 8 8 ...
+    ##  $ standCountIdeal   : num [1:120] 8 8 8 8 8 8 8 8 8 8 ...
+    ##  $ standCountIdealPct: num [1:120] 0.875 0.75 0.875 0.75 0.875 0.375 0.875 0.875 1 1 ...
+    ##  $ color             : Factor w/ 2 levels "Green","Orange": 2 2 2 2 2 2 2 2 2 2 ...
+    ##  $ weight            : num [1:120] 30.9 24.2 31.4 24.5 16.2 29.4 23.4 20.6 31.4 26.2 ...
+    ##  $ length            : num [1:120] 13.6 12.5 13.9 12.5 10.1 12.3 12.5 12 13.7 13 ...
+    ##  $ diameter          : num [1:120] 15.1 13.7 14.9 13.5 11.7 14.6 12.7 12.3 14.6 13.3 ...
+
+``` r
+nitrogenData
+```
+
+    ## # A tibble: 120 x 14
+    ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
+    ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
+    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ## # ... with 110 more rows, and 6 more variables: standCountIdeal <dbl>,
+    ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
+    ## #   diameter <dbl>
+
 ### Save Clean Data
+
+Note the clean data inventory.  
+Point out why there are different nitrogen files.
 
 ``` r
 # Change directory to clean data folder
@@ -906,16 +964,14 @@ setwd("./CleanData/")
 
 # Export R data object to Excel
 write_xlsx(spacingData, "spacingData.xlsx")
+write_xlsx(nitrogenData, "nitrogenData.xlsx")
 write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
 write_xlsx(nitrogenLength, "nitrogenLength.xlsx")
 write_xlsx(nitrogenDiameter, "nitrogenDiameter.xlsx")
 
 # Export R data objects to RData file
-save(spacingData, nitrogenWeight, nitrogenLength, nitrogenDiameter, file = "pumpkinData.RData")
-
-# Export R data objects to SAS format This is not possible with Haven
-# package I have a separate SAS script that imports the created Excel
-# file and transforms to SAS data file
+save(spacingData, nitrogenData, nitrogenWeight, nitrogenLength, nitrogenDiameter, 
+    file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
@@ -924,7 +980,8 @@ setwd("..")
 setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
-save(spacingData, nitrogenWeight, nitrogenLength, nitrogenDiameter, file = "pumpkinData.RData")
+save(spacingData, nitrogenData, nitrogenWeight, nitrogenLength, nitrogenDiameter, 
+    file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
