@@ -456,6 +456,13 @@ for (i in 1:nrow(spacingData)) {
 }
 spacingData$color <- as.factor(spacingData$color)
 
+# Update unique pumpkin ID to include color (to match nitrogen data format)
+spacingData$pumpkinID <- paste0(spacingData$year,"-",
+                                "S","-",
+                                spacingData$plot,"-",
+                                spacingData$color,"-",
+                                spacingData$pumpkinNum)
+
 # Create variable for spacing area and transform spacing variables factors
 spacingData <- mutate(spacingData,spacingArea=sapply(strsplit(as.character(spacingDim),split=" x "),function(x) prod(as.numeric(x))))
 spacingData$spacingArea <- as.factor(spacingData$spacingArea)

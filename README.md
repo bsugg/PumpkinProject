@@ -637,6 +637,11 @@ for (i in 1:nrow(spacingData)) {
 }
 spacingData$color <- as.factor(spacingData$color)
 
+# Update unique pumpkin ID to include color (to match nitrogen data
+# format)
+spacingData$pumpkinID <- paste0(spacingData$year, "-", "S", "-", spacingData$plot, 
+    "-", spacingData$color, "-", spacingData$pumpkinNum)
+
 # Create variable for spacing area and transform spacing variables
 # factors
 spacingData <- mutate(spacingData, spacingArea = sapply(strsplit(as.character(spacingDim), 
@@ -673,7 +678,7 @@ str(spacingData)
 ```
 
     ## tibble [1,259 x 18] (S3: tbl_df/tbl/data.frame)
-    ##  $ pumpkinID         : chr [1:1259] "2020-S-101-1" "2020-S-102-1" "2020-S-103-1" "2020-S-104-1" ...
+    ##  $ pumpkinID         : chr [1:1259] "2020-S-101-Green-1" "2020-S-102-Green-1" "2020-S-103-Orange-1" "2020-S-104-Green-1" ...
     ##  $ year              : Factor w/ 2 levels "2020","2021": 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ plot              : Factor w/ 32 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
     ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 1 1 2 2 ...
