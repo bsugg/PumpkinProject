@@ -280,7 +280,29 @@ The below formatting steps were followed for the `Nitrogen Diameters
 
 #### Leaf Composition Study
 
-To be processed…
+The below formatting steps were followed for each of the three
+worksheets for the leaf composition study:
+
+1.  Removed empty rows and empty columns from the top and the left of
+    the main data frame
+      - Resulted in all column names moving up to row 1  
+2.  Removed empty rows between records that were separating `reps`  
+3.  Removed empty column E  
+4.  Checked `Nitrogen Rate` column B to ensure all values were evenly
+    spaced for consistent categorical values
+      - Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
+5.  Repeated the above steps 1 - 4 for the other two leaf composition
+    study worksheets
+
+**Note:** The `Nitrogen Rate` value for `Plot` 302 in the `Leaf Analysis
+Nitrogen (%)` worksheet was blank. Updated to reflect the value of `200
+lbs/acre` that was associated with this plot in the `Leaf Analysis
+Phosphorus (%)` and `Leaf Analysis Potassium (%)` worksheets.
+
+**Note:** The `Treatment` value for `Plot` 406 in the `Leaf Analysis
+Nitrogen (%)` worksheet was listed as `4`. Updated to reflect the
+treatment value of `2` that was associated with this plot in the `Leaf
+Analysis Phosphorus (%)` and `Leaf Analysis Potassium (%)` worksheets.
 
 Finally, the file was renamed to `2021pumpkinData.xlsx` after formatting
 for easy future reference.
@@ -611,6 +633,62 @@ nitrogenDiameterGreen <- mutate(nitrogenDiameterGreen, pumpkinID = paste0(year,
 
 # Combine all diameters into one tibble
 nitrogenDiameter <- rbind(nitrogenDiameterOrange, nitrogenDiameterGreen)
+```
+
+### Leaf Composition Study
+
+#### 2021 Data
+
+Check worksheet names for each of the 3 read\_excel functions.  
+Check columns used in gather() function.
+
+``` r
+# Read sheet with NITROGEN %, transform from wide to tall, remove NA
+# records
+leafNitrogen <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", sheet = "Leaf Analysis Nitrogen (%)")
+leafNitrogen <- gather(leafNitrogen, key = "Date", value = "Nitrogen", 
+    5:12)
+leafNitrogen <- subset(leafNitrogen, !is.na(Nitrogen))
+# Rename columns
+names(leafNitrogen) <- c("plot", "nitrogenRate", "treatment", "rep", "date", 
+    "nitrogenPct")
+
+# Read sheet with PHOSPHORUS %, transform from wide to tall, remove NA
+# records
+leafPhosphorus <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
+    sheet = "Leaf Analysis Phosphorus (%)")
+leafPhosphorus <- gather(leafPhosphorus, key = "Date", value = "Phosphorus", 
+    5:12)
+leafPhosphorus <- subset(leafPhosphorus, !is.na(Phosphorus))
+# Rename columns
+names(leafPhosphorus) <- c("plot", "nitrogenRate", "treatment", "rep", 
+    "date", "phosphorusPct")
+
+# Read sheet with POTASSIUM %, transform from wide to tall, remove NA
+# records
+leafPotassium <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", sheet = "Leaf Analysis Potassium (%)")
+leafPotassium <- gather(leafPotassium, key = "Date", value = "Potassium", 
+    5:12)
+leafPotassium <- subset(leafPotassium, !is.na(Potassium))
+# Rename columns
+names(leafPotassium) <- c("plot", "nitrogenRate", "treatment", "rep", "date", 
+    "potassiumPct")
+
+# Join all leaf metrics into one table
+leafData <- inner_join(leafNitrogen, leafPhosphorus)
+```
+
+    ## Joining, by = c("plot", "nitrogenRate", "treatment", "rep", "date")
+
+``` r
+leafData <- inner_join(leafData, leafPotassium)
+```
+
+    ## Joining, by = c("plot", "nitrogenRate", "treatment", "rep", "date")
+
+``` r
+# Create variable for year
+leafData <- mutate(leafData, year = "2021")
 ```
 
 ## Data Transformation
@@ -958,7 +1036,64 @@ nitrogenData
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
     ## #   diameter <dbl>
 
-### Save Clean Data
+### Leaf Composition Study
+
+``` r
+# Format variables
+leafData$plot <- as.factor(leafData$plot)
+leafData$nitrogenRate <- as.factor(leafData$nitrogenRate)
+leafData$treatment <- as.factor(leafData$treatment)
+leafData$rep <- as.factor(leafData$rep)
+leafData$year <- as.factor(leafData$year)
+
+# Ensure metrics are all numerical AND convert percentage to decimal
+leafData$nitrogenPct <- as.numeric(leafData$nitrogenPct/100)
+leafData$phosphorusPct <- as.numeric(leafData$phosphorusPct/100)
+leafData$potassiumPct <- as.numeric(leafData$potassiumPct/100)
+
+# Convert Excel date into a real date and set correct year for 2021
+# data
+leafData$date <- as.Date(as.numeric(leafData$date), origin = "1899-12-30")
+year(leafData$date) <- 2021
+
+# Arrange columns for presentation of final table for spacing data
+leafData <- select(leafData, c(9, 1, 4, 3, 2, 5, 6, 7, 8))
+
+# Provide structure of transformed variables with data preview
+str(leafData)
+```
+
+    ## tibble [192 x 9] (S3: tbl_df/tbl/data.frame)
+    ##  $ year         : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ plot         : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep          : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ treatment    : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
+    ##  $ nitrogenRate : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
+    ##  $ date         : Date[1:192], format: "2021-07-23" "2021-07-23" ...
+    ##  $ nitrogenPct  : num [1:192] 0.0538 0.0584 0.0534 0.0576 0.0523 0.0429 0.0548 0.0544 0.0505 0.056 ...
+    ##  $ phosphorusPct: num [1:192] 0.0029 0.0033 0.0028 0.0029 0.0027 0.0017 0.0031 0.003 0.0029 0.003 ...
+    ##  $ potassiumPct : num [1:192] 0.0412 0.0433 0.0416 0.0368 0.037 0.0304 0.0464 0.0435 0.0428 0.0421 ...
+
+``` r
+leafData
+```
+
+    ## # A tibble: 192 x 9
+    ##    year  plot  rep   treatment nitrogenRate date       nitrogenPct phosphorusPct
+    ##    <fct> <fct> <fct> <fct>     <fct>        <date>           <dbl>         <dbl>
+    ##  1 2021  101   1     1         0 lbs/acre   2021-07-23      0.0538       0.00290
+    ##  2 2021  102   1     2         40 lbs/acre  2021-07-23      0.0584       0.0033 
+    ##  3 2021  103   1     3         80 lbs/acre  2021-07-23      0.0534       0.0028 
+    ##  4 2021  104   1     4         120 lbs/acre 2021-07-23      0.0576       0.00290
+    ##  5 2021  105   1     5         160 lbs/acre 2021-07-23      0.0523       0.0027 
+    ##  6 2021  106   1     6         200 lbs/acre 2021-07-23      0.0429       0.0017 
+    ##  7 2021  201   2     2         40 lbs/acre  2021-07-23      0.0548       0.0031 
+    ##  8 2021  202   2     4         120 lbs/acre 2021-07-23      0.0544       0.003  
+    ##  9 2021  203   2     5         160 lbs/acre 2021-07-23      0.0505       0.00290
+    ## 10 2021  204   2     1         0 lbs/acre   2021-07-23      0.0560       0.003  
+    ## # ... with 182 more rows, and 1 more variable: potassiumPct <dbl>
+
+## Save Clean Data
 
 Note the clean data inventory.  
 Point out why there are different nitrogen files.
@@ -973,6 +1108,7 @@ write_xlsx(nitrogenData, "nitrogenData.xlsx")
 write_xlsx(nitrogenWeight, "nitrogenWeight.xlsx")
 write_xlsx(nitrogenLength, "nitrogenLength.xlsx")
 write_xlsx(nitrogenDiameter, "nitrogenDiameter.xlsx")
+write_xlsx(leafData, "leafData.xlsx")
 
 # Change directory back to CleanData, then to R
 setwd("..")
@@ -980,7 +1116,7 @@ setwd("./R/")
 
 # Export R data objects to RData file
 save(spacingData, nitrogenData, nitrogenWeight, nitrogenLength, nitrogenDiameter, 
-    file = "pumpkinData.RData")
+    leafData, file = "pumpkinData.RData")
 
 # Change directory back to CleanData, then back to primary project
 setwd("..")
@@ -991,7 +1127,7 @@ setwd("./ShinyPumpkinProject/")
 
 # Export R data objects to RData file
 save(spacingData, nitrogenData, nitrogenWeight, nitrogenLength, nitrogenDiameter, 
-    file = "pumpkinData.RData")
+    leafData, file = "pumpkinData.RData")
 
 # Change directory back to primary project
 setwd("..")
@@ -1034,6 +1170,17 @@ plot(spacingData$length, spacingData$diameter, xlab = "Length (in)", ylab = "Dia
 # y=weight, fill=spacingArea)) + geom_boxplot(varwidth = TRUE,
 # alpha=0.2) + theme(legend.position='none')
 ```
+
+### Nitrogen Study
+
+### Leaf Study
+
+``` r
+ggplot(data = leafData, aes(x = date, y = nitrogenPct, color = treatment)) + 
+    geom_line()
+```
+
+![](README_files/figure-gfm/exploreLeafData-1.png)<!-- -->
 
 # Analysis
 
