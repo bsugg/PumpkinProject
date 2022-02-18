@@ -1,7 +1,7 @@
 ---
 title: "ST542 - Consulting Project"
 author: "Brian Sugg & Chengxi Zou"
-date: "1/26/2022"
+date: "2/11/2022"
 output:
   html_document:
     toc: true
@@ -11,6 +11,22 @@ editor_options:
   chunk_output_type: console
 ---
 
+<style type="text/css">
+h1.title {
+  font-size: 38px;
+  color: Black;
+  text-align: center;
+}
+h4.author {
+  font-size: 18px;
+  text-align: center;
+}
+h4.date {
+  font-size: 18px;
+  text-align: center;
+}
+</style>
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(formatR)
@@ -19,6 +35,10 @@ library(readxl)
 library(ggplot2)
 library(writexl)
 knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
+```
+
+```{r deliveryPhases, echo=FALSE, out.width="130%"}
+knitr::include_graphics("./Images/deliveryPhases.JPG")
 ```
 
 # Discovery  
@@ -39,7 +59,6 @@ Raw data from the research conducted in 2020 and 2021 was provided in multiple E
     + 2021 Leaf Composition Study  
 * `2021 Bin Pumpkin Sizes.xlsx`  
     + 2021 Bin Capacity Study  
-* `<Placeholder for 2022 Nitrogen Study>`  
 
 ## Data Formatting  
 
