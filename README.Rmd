@@ -665,10 +665,60 @@ leafData
 
 ## Save Clean Data  
 
-Note the clean data inventory.  
-Point out why there are different nitrogen files.  
+This project has produced several clean data sets! An overview of their properties and links to download them in different file formats is outlined further below.  
 
-```{r saveData}
+* spacingData  
+    + `r format(nrow(spacingData),big.mark=",")` records containing **all metrics** collected from the 2020 and 2021 Spacing Study  
+* nitrogenData  
+    + `r format(nrow(nitrogenData),big.mark=",")` records containing **all metrics** collected from the 2021 Nitrogen Study  
+    + *Note: Since length and diameter were only recorded for a limited number of pumpkins, this data set only contains pumpkins that had all three metrics collected*  
+* nitrogenWeight  
+    + `r format(nrow(nitrogenWeight),big.mark=",")` records containing weight data collected from the 2021 Nitrogen Study  
+* nitrogenLength  
+    + `r format(nrow(nitrogenLength),big.mark=",")` records containing length data collected from the 2021 Nitrogen Study  
+    + *Note: Length was only recorded for a limited number of pumpkins*  
+* nitrogenDiameter  
+    + `r format(nrow(nitrogenDiameter),big.mark=",")` records containing length data collected from the 2021 Nitrogen Study  
+    + *Note: Diameter was only recorded for a limited number of pumpkins*  
+* leafData  
+    + `r format(nrow(leafData),big.mark=",")` records containing **all metrics** collected from the 2021 Leaf Composition Study  
+
+All clean data files can be found and browsed in the [GitHub repository](https://github.com/bsugg/PumpkinProject/tree/main/CleanData) for this project.  
+
+Specific files of desired format (R, SAS, or Excel) can be downloaded by clicking the appropriate links in the subsequent sections.  
+
+### R  
+
+* [pumpkinData.RData](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/R/pumpkinData.RData)  
+    + Can be loaded into other R projects by setting the correct working directory and using the following code:  
+        - `load("pumpkinData.RData")`  
+    + This single file contains the following data sets:  
+        - spacingData  
+        - nitrogenData  
+        - nitrogenWeight  
+        - nitrogenLength  
+        - nitrogenDiameter  
+        - leafData  
+
+### SAS  
+
+* [spacingdata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/spacingdata.sas7bdat)  
+* [nitrogendata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogendata.sas7bdat)  
+    + [nitrogenweight.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogenweight.sas7bdat)  
+    + [nitrogenlength.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogenlength.sas7bdat)  
+    + [nitrogendiameter.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogendiameter.sas7bdat)  
+* [leafdata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/leafdata.sas7bdat)  
+
+### Excel  
+
+* [spacingData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/spacingData.xlsx)  
+* [nitrogenData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenData.xlsx)  
+    + [nitrogenWeight.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenWeight.xlsx)  
+    + [nitrogenLength.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenLength.xlsx)  
+    + [nitrogenDiameter.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenDiameter.xlsx)  
+* [leafData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/leafData.xlsx)  
+
+```{r saveData, include=FALSE}
 # Change directory to clean data folder for Excel files
 setwd("./CleanData/Excel/")
 
