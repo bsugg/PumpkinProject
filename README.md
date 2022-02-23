@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 2/16/2022
+Last Update: 2/22/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -1173,14 +1173,65 @@ plot(spacingData$length, spacingData$diameter, xlab = "Length (in)", ylab = "Dia
 
 ### Nitrogen Study
 
-### Leaf Study
+``` r
+# Scatter plot of weight vs length
+plot(nitrogenData$length, nitrogenData$weight, xlab = "Length (in)", ylab = "Weight (lbs)")
+```
+
+![](README_files/figure-gfm/exploreNitrogenData-1.png)<!-- -->
 
 ``` r
+# Scatter plot of weight vs diameter
+plot(nitrogenData$diameter, nitrogenData$weight, xlab = "Diameter (in)", 
+    ylab = "Weight (lbs)")
+```
+
+![](README_files/figure-gfm/exploreNitrogenData-2.png)<!-- -->
+
+``` r
+# Box plot of weight vs treatment level
+plot(nitrogenWeight$treatment, nitrogenWeight$weight, xlab = "Treatment", 
+    ylab = "Weight (lbs)")
+```
+
+![](README_files/figure-gfm/exploreNitrogenData-3.png)<!-- -->
+
+### Leaf Study
+
+Associated fertilizer application levels for each treatment:
+
+  - Treatment 1: 0 lbs/acre  
+  - Treatment 2: 40 lbs/acre  
+  - Treatment 3: 80 lbs/acre  
+  - Treatment 4: 120 lbs/acre  
+  - Treatment 5: 160 lbs/acre  
+  - Treatment 6: 200 lbs/acre
+
+<!-- end list -->
+
+``` r
+# Line chart by treatment level over time for Nitrogen
 ggplot(data = leafData, aes(x = date, y = nitrogenPct, color = treatment)) + 
     geom_line()
 ```
 
 ![](README_files/figure-gfm/exploreLeafData-1.png)<!-- -->
+
+``` r
+# Line chart by treatment level over time for Phosphorus
+ggplot(data = leafData, aes(x = date, y = phosphorusPct, color = treatment)) + 
+    geom_line()
+```
+
+![](README_files/figure-gfm/exploreLeafData-2.png)<!-- -->
+
+``` r
+# Line chart by treatment level over time for Potassium
+ggplot(data = leafData, aes(x = date, y = potassiumPct, color = treatment)) + 
+    geom_line()
+```
+
+![](README_files/figure-gfm/exploreLeafData-3.png)<!-- -->
 
 # Analysis
 

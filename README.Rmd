@@ -1,6 +1,6 @@
 ---
 title: "Project Phases"
-date: "Last Update: 2/16/2022"
+date: "Last Update: 2/22/2022"
 output:
   rmarkdown::github_document:
     toc: false
@@ -748,10 +748,45 @@ plot(spacingData$length,spacingData$diameter,
 
 ### Nitrogen Study  
 
+```{r exploreNitrogenData}
+# Scatter plot of weight vs length
+plot(nitrogenData$length,nitrogenData$weight,
+     xlab="Length (in)",
+     ylab="Weight (lbs)")
+
+# Scatter plot of weight vs diameter
+plot(nitrogenData$diameter,nitrogenData$weight,
+     xlab="Diameter (in)",
+     ylab="Weight (lbs)")
+
+# Box plot of weight vs treatment level
+plot(nitrogenWeight$treatment,nitrogenWeight$weight,
+     xlab="Treatment",
+     ylab="Weight (lbs)")
+```
+
 ### Leaf Study  
 
+Associated fertilizer application levels for each treatment:  
+
+* Treatment 1: 0 lbs/acre  
+* Treatment 2: 40 lbs/acre  
+* Treatment 3: 80 lbs/acre  
+* Treatment 4: 120 lbs/acre  
+* Treatment 5: 160 lbs/acre  
+* Treatment 6: 200 lbs/acre  
+
 ```{r exploreLeafData}
+# Line chart by treatment level over time for Nitrogen
 ggplot(data=leafData,aes(x=date,y=nitrogenPct,color=treatment))+
+  geom_line()
+
+# Line chart by treatment level over time for Phosphorus
+ggplot(data=leafData,aes(x=date,y=phosphorusPct,color=treatment))+
+  geom_line()
+
+# Line chart by treatment level over time for Potassium
+ggplot(data=leafData,aes(x=date,y=potassiumPct,color=treatment))+
   geom_line()
 ```
 
