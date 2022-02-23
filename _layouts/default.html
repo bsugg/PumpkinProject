@@ -19,8 +19,8 @@
 
       <header>
         <!-- page.title was the original first listed h1 element - Updated to site.title coming from _config.yml-->
-        <h1>{{ "My House" | default: site.title | default: site.github.repository_name }}</h1>
-        <p>{{ page.description | default: site.description | default: site.github.project_tagline }}</p>
+        <h1>{{ site.title | default: site.title | default: site.github.repository_name }}</h1>
+        <p>{{ "My House" | default: site.description | default: site.github.project_tagline }}</p>
       </header>
       <!--COMMENT OUT THE DOWNLOAD BANNER - REMOVE THIS LINE TO BRING BACK
       <div id="banner">
