@@ -4,4 +4,4 @@ show_downloads: true
 google_analytics: UA-44627132-6
 theme: jekyll-theme-leap-day
 github:
-  zip_url: https://github.com/bsugg/PumpkinProject/tree/main/CleanData
+  zip_url: https://github.com/bsugg/PumpkinProject/tree/main/CleanData/download.zip
