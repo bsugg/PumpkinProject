@@ -3,5 +3,6 @@ description: The Impact of Plant Spacing and Nitrogen Levels on Pumpkin Yield
 show_downloads: true
 google_analytics: UA-44627132-6
 theme: jekyll-theme-leap-day
-github:
-  zip_url: https://github.com/bsugg/PumpkinProject/tree/main/CleanData/download.zip
+# Custom URLs can be created using the below section for the GitHub page references used in html layout
+# github:
+#  zip_url: https://github.com/bsugg/PumpkinProject/tree/main/CleanData/download.zip
