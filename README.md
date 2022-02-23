@@ -367,6 +367,8 @@ spacingWeight <- mutate(spacingWeight, year = "2020")
 spacingWeight <- mutate(spacingWeight, pumpkinID = paste0(year, "-", "S", 
     "-", plot, "-", pumpkinNum))
 
+########################## 
+
 # Read sheet with LENGTHS, transform from wide to tall, remove NA
 # records
 spacingLength <- read_excel(path = "./ReadData/2020pumpkinData.xlsx", sheet = "Spacing Length")
@@ -380,6 +382,8 @@ names(spacingLength) <- c("plot", "treatment", "rep", "spacingDim", "greenPumpki
 spacingLength <- mutate(spacingLength, year = "2020")
 spacingLength <- mutate(spacingLength, pumpkinID = paste0(year, "-", "S", 
     "-", plot, "-", pumpkinNum))
+
+########################## 
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA
 # records
@@ -395,6 +399,8 @@ names(spacingDiameter) <- c("plot", "treatment", "rep", "spacingDim", "greenPump
 spacingDiameter <- mutate(spacingDiameter, year = "2020")
 spacingDiameter <- mutate(spacingDiameter, pumpkinID = paste0(year, "-", 
     "S", "-", plot, "-", pumpkinNum))
+
+########################## 
 
 # Join all spacing metrics in one raw table for quality checks
 spacingDataRaw2020 <- inner_join(spacingWeight, spacingLength)
@@ -465,6 +471,8 @@ spacingWeight <- mutate(spacingWeight, year = "2021")
 spacingWeight <- mutate(spacingWeight, pumpkinID = paste0(year, "-", "S", 
     "-", plot, "-", pumpkinNum))
 
+########################## 
+
 # Read sheet with LENGTHS, transform from wide to tall, remove NA
 # records
 spacingLength <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", sheet = "Spacing Lengths (inches)")
@@ -478,6 +486,8 @@ names(spacingLength) <- c("plot", "treatment", "rep", "standCount", "standCountI
 spacingLength <- mutate(spacingLength, year = "2021")
 spacingLength <- mutate(spacingLength, pumpkinID = paste0(year, "-", "S", 
     "-", plot, "-", pumpkinNum))
+
+########################## 
 
 # Read sheet with DIAMETERS, transform from wide to tall, remove NA
 # records
@@ -493,6 +503,8 @@ names(spacingDiameter) <- c("plot", "treatment", "rep", "standCount", "standCoun
 spacingDiameter <- mutate(spacingDiameter, year = "2021")
 spacingDiameter <- mutate(spacingDiameter, pumpkinID = paste0(year, "-", 
     "S", "-", plot, "-", pumpkinNum))
+
+########################## 
 
 # Join all spacing metrics in one raw table for quality checks
 spacingDataRaw2021 <- inner_join(spacingWeight, spacingLength)
@@ -653,6 +665,8 @@ leafNitrogen <- subset(leafNitrogen, !is.na(Nitrogen))
 names(leafNitrogen) <- c("plot", "nitrogenRate", "treatment", "rep", "date", 
     "nitrogenPct")
 
+########################## 
+
 # Read sheet with PHOSPHORUS %, transform from wide to tall, remove NA
 # records
 leafPhosphorus <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", 
@@ -664,6 +678,8 @@ leafPhosphorus <- subset(leafPhosphorus, !is.na(Phosphorus))
 names(leafPhosphorus) <- c("plot", "nitrogenRate", "treatment", "rep", 
     "date", "phosphorusPct")
 
+########################## 
+
 # Read sheet with POTASSIUM %, transform from wide to tall, remove NA
 # records
 leafPotassium <- read_excel(path = "./ReadData/2021pumpkinData.xlsx", sheet = "Leaf Analysis Potassium (%)")
@@ -673,6 +689,8 @@ leafPotassium <- subset(leafPotassium, !is.na(Potassium))
 # Rename columns
 names(leafPotassium) <- c("plot", "nitrogenRate", "treatment", "rep", "date", 
     "potassiumPct")
+
+########################## 
 
 # Join all leaf metrics into one table
 leafData <- inner_join(leafNitrogen, leafPhosphorus)
@@ -982,44 +1000,51 @@ nitrogenDiameter
 #### All Measures
 
 ``` r
-# Join all nitrogen metrics into one table
-nitrogenData <- inner_join(nitrogenWeight, nitrogenLength)
+# Join all nitrogen metrics into one table Left join used with weight
+# as base as limited length and diameter metrics were collected
+nitrogenData <- left_join(nitrogenWeight, nitrogenLength)
 ```
 
     ## Joining, by = c("pumpkinID", "year", "plot", "rep", "treatment", "pumpkinNum", "nitrogenRate", "standCount", "standCountIdeal", "standCountIdealPct", "color")
 
 ``` r
-nitrogenData <- inner_join(nitrogenData, nitrogenDiameter)
+nitrogenData <- left_join(nitrogenData, nitrogenDiameter)
 ```
 
     ## Joining, by = c("pumpkinID", "year", "plot", "rep", "treatment", "pumpkinNum", "nitrogenRate", "standCount", "standCountIdeal", "standCountIdealPct", "color")
 
 ``` r
+# Create variable for volume nitrogenData <-
+# mutate(nitrogenData,volumeSphere=(4/3)*pi*(diameter/2)^3)
+nitrogenData <- mutate(nitrogenData, volumeEllipsoid = (4/3) * pi * (diameter/2) * 
+    (diameter/2) * (length/2))
+
 # Provide structure of transformed variables with data preview
 str(nitrogenData)
 ```
 
-    ## tibble [120 x 14] (S3: tbl_df/tbl/data.frame)
-    ##  $ pumpkinID         : chr [1:120] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
+    ## tibble [618 x 15] (S3: tbl_df/tbl/data.frame)
+    ##  $ pumpkinID         : chr [1:618] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
     ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
     ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
     ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
-    ##  $ pumpkinNum        : num [1:120] 1 1 1 1 1 1 1 1 1 1 ...
+    ##  $ pumpkinNum        : num [1:618] 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
-    ##  $ standCount        : num [1:120] 7 6 7 6 7 3 7 7 8 8 ...
-    ##  $ standCountIdeal   : num [1:120] 8 8 8 8 8 8 8 8 8 8 ...
-    ##  $ standCountIdealPct: num [1:120] 0.875 0.75 0.875 0.75 0.875 0.375 0.875 0.875 1 1 ...
+    ##  $ standCount        : num [1:618] 7 6 7 6 7 3 7 7 8 8 ...
+    ##  $ standCountIdeal   : num [1:618] 8 8 8 8 8 8 8 8 8 8 ...
+    ##  $ standCountIdealPct: num [1:618] 0.875 0.75 0.875 0.75 0.875 0.375 0.875 0.875 1 1 ...
     ##  $ color             : Factor w/ 2 levels "Green","Orange": 2 2 2 2 2 2 2 2 2 2 ...
-    ##  $ weight            : num [1:120] 30.9 24.2 31.4 24.5 16.2 29.4 23.4 20.6 31.4 26.2 ...
-    ##  $ length            : num [1:120] 13.6 12.5 13.9 12.5 10.1 12.3 12.5 12 13.7 13 ...
-    ##  $ diameter          : num [1:120] 15.1 13.7 14.9 13.5 11.7 14.6 12.7 12.3 14.6 13.3 ...
+    ##  $ weight            : num [1:618] 30.9 24.2 31.4 24.5 16.2 29.4 23.4 20.6 31.4 26.2 ...
+    ##  $ length            : num [1:618] 13.6 12.5 13.9 12.5 10.1 12.3 12.5 12 13.7 13 ...
+    ##  $ diameter          : num [1:618] 15.1 13.7 14.9 13.5 11.7 14.6 12.7 12.3 14.6 13.3 ...
+    ##  $ volumeEllipsoid   : num [1:618] 1624 1228 1616 1193 724 ...
 
 ``` r
 nitrogenData
 ```
 
-    ## # A tibble: 120 x 14
+    ## # A tibble: 618 x 15
     ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
     ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
     ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
@@ -1032,9 +1057,9 @@ nitrogenData
     ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
     ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
     ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
-    ## # ... with 110 more rows, and 6 more variables: standCountIdeal <dbl>,
+    ## # ... with 608 more rows, and 7 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
-    ## #   diameter <dbl>
+    ## #   diameter <dbl>, volumeEllipsoid <dbl>
 
 ### Leaf Composition Study
 
@@ -1099,31 +1124,22 @@ This project has produced several clean data sets\! An overview of their
 properties and links to download them in different file formats is
 outlined further below.
 
+### Data Inventory
+
   - spacingData
-      - 1,259 records containing **all metrics** collected from the 2020
-        and 2021 Spacing Study  
+      - 1,259 total records containing **all metrics** collected from
+        the 2020 and 2021 Spacing Study  
   - nitrogenData
-      - 120 records containing **all metrics** collected from the 2021
-        Nitrogen Study  
-      - *Note: Since length and diameter were only recorded for a
-        limited number of pumpkins, this data set only contains pumpkins
-        that had all three metrics collected*  
-  - nitrogenWeight
-      - 618 records containing weight data collected from the 2021
-        Nitrogen Study  
-  - nitrogenLength
-      - 120 records containing length data collected from the 2021
-        Nitrogen Study  
-      - *Note: Length was only recorded for a limited number of
-        pumpkins*  
-  - nitrogenDiameter
-      - 120 records containing length data collected from the 2021
-        Nitrogen Study  
-      - *Note: Diameter was only recorded for a limited number of
-        pumpkins*  
+      - 618 total records collected from the 2021 Nitrogen Study, of
+        which:
+          - 618 records contain the **weight metric**  
+          - 120 records contain **all metrics**
+          - *Note: Since length and diameter were only recorded for a
+            limited number of pumpkins, there are limited records with
+            all three metrics available*  
   - leafData
-      - 192 records containing **all metrics** collected from the 2021
-        Leaf Composition Study
+      - 192 total records containing **all metrics** collected from the
+        2021 Leaf Composition Study
 
 All clean data files can be found and browsed in the [GitHub
 repository](https://github.com/bsugg/PumpkinProject/tree/main/CleanData)
@@ -1141,28 +1157,25 @@ clicking the appropriate links in the subsequent sections.
       - This single file contains the following data sets:
           - spacingData  
           - nitrogenData  
-          - nitrogenWeight  
-          - nitrogenLength  
-          - nitrogenDiameter  
           - leafData
 
 ### SAS
 
   - [spacingdata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/spacingdata.sas7bdat)  
-  - [nitrogendata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogendata.sas7bdat)
-      - [nitrogenweight.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogenweight.sas7bdat)  
-      - [nitrogenlength.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogenlength.sas7bdat)  
-      - [nitrogendiameter.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogendiameter.sas7bdat)  
+  - [nitrogendata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/nitrogendata.sas7bdat)  
   - [leafdata.sas7bdat](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/SAS/leafdata.sas7bdat)
 
 ### Excel
 
   - [spacingData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/spacingData.xlsx)  
-  - [nitrogenData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenData.xlsx)
-      - [nitrogenWeight.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenWeight.xlsx)  
-      - [nitrogenLength.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenLength.xlsx)  
-      - [nitrogenDiameter.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenDiameter.xlsx)  
+  - [nitrogenData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/nitrogenData.xlsx)  
   - [leafData.xlsx](https://github.com/bsugg/PumpkinProject/raw/main/CleanData/Excel/leafData.xlsx)
+
+#### Variable Descriptions
+
+  - spacingData  
+  - nitrogenData  
+  - leafData
 
 # Data Exploration
 
@@ -1193,14 +1206,36 @@ plot(spacingData$length, spacingData$diameter, xlab = "Length (in)", ylab = "Dia
 ![](README_files/figure-gfm/exploreSpacingData-3.png)<!-- -->
 
 ``` r
-# Boxplot by spacing dimension ggplot(spacingData, aes(x=spacingDim,
-# y=weight, fill=spacingDim)) + geom_boxplot(varwidth = TRUE,
-# alpha=0.2) + theme(legend.position='none')
-
-# Boxplot by spacing area ggplot(spacingData, aes(x=spacingArea,
-# y=weight, fill=spacingArea)) + geom_boxplot(varwidth = TRUE,
-# alpha=0.2) + theme(legend.position='none')
+# Boxplot of weight by spacing dimension
+ggplot(spacingData, aes(x = spacingDim, y = weight, fill = spacingDim)) + 
+    geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none")
 ```
+
+![](README_files/figure-gfm/exploreSpacingData-4.png)<!-- -->
+
+``` r
+# Boxplot of weight by spacing area
+ggplot(spacingData, aes(x = spacingArea, y = weight, fill = spacingArea)) + 
+    geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none")
+```
+
+![](README_files/figure-gfm/exploreSpacingData-5.png)<!-- -->
+
+``` r
+# Boxplot of volume by spacing dimension
+ggplot(spacingData, aes(x = spacingDim, y = volumeEllipsoid, fill = spacingDim)) + 
+    geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none")
+```
+
+![](README_files/figure-gfm/exploreSpacingData-6.png)<!-- -->
+
+``` r
+# Boxplot of volume by spacing area
+ggplot(spacingData, aes(x = spacingArea, y = volumeEllipsoid, fill = spacingArea)) + 
+    geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none")
+```
+
+![](README_files/figure-gfm/exploreSpacingData-7.png)<!-- -->
 
 ### Nitrogen Study
 
