@@ -20,12 +20,12 @@
       <header>
         <!-- page.title was the original first listed h1 element - Updated to site.title coming from _config.yml-->
         <h1>{{ site.title | default: site.title | default: site.github.repository_name }}</h1>
-        <p>{{ "My House" | default: site.description | default: site.github.project_tagline }}</p>
+        <p>{{ site.description | default: site.description | default: site.github.project_tagline }}</p>
       </header>
+    
       <!--COMMENT OUT THE DOWNLOAD BANNER - REMOVE THIS LINE TO BRING BACK
       <div id="banner">
         <span id="logo"></span>
-
         <a href="{{ site.github.repository_url }}" class="button fork"><strong>View On GitHub</strong></a>
         {% if site.show_downloads %}
           <div class="downloads">
@@ -48,7 +48,7 @@
         {{ content }}
       </section>
       
-      <!--COMMENT OUT THE DOWNLOAD BANNER - REMOVE THIS LINE and LAST LINE TO BRING BACK
+      <!--COMMENT OUT THE FOOTER - REMOVE THIS LINE and LAST LINE TO BRING BACK
       <footer>
         {% if site.github.is_project_page %}
           <p>Project maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
