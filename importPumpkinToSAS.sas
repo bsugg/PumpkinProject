@@ -27,39 +27,6 @@ PROC SORT DATA=sendData.nitrogenData OUT=sendData.nitrogenData;
 	BY year plot descending color pumpkinNum;
 RUN;
 
-PROC IMPORT OUT=sendData.nitrogenWeight
-	DATAFILE="C:\Users\suggb\Documents\ST542\Project\PumpkinProject\CleanData\Excel\nitrogenWeight.xlsx"
-  DBMS=xlsx REPLACE;
-  SHEET="Sheet1"; 
-  GETNAMES=YES;
-RUN;
-
-PROC SORT DATA=sendData.nitrogenWeight OUT=sendData.nitrogenWeight;
-	BY year plot descending color pumpkinNum;
-RUN;
-
-PROC IMPORT OUT=sendData.nitrogenLength
-	DATAFILE="C:\Users\suggb\Documents\ST542\Project\PumpkinProject\CleanData\Excel\nitrogenLength.xlsx"
-  DBMS=xlsx REPLACE;
-  SHEET="Sheet1"; 
-  GETNAMES=YES;
-RUN;
-
-PROC SORT DATA=sendData.nitrogenLength OUT=sendData.nitrogenLength;
-	BY year plot descending color pumpkinNum;
-RUN;
-
-PROC IMPORT OUT=sendData.nitrogenDiameter
-	DATAFILE="C:\Users\suggb\Documents\ST542\Project\PumpkinProject\CleanData\Excel\nitrogenDiameter.xlsx"
-  DBMS=xlsx REPLACE;
-  SHEET="Sheet1"; 
-  GETNAMES=YES;
-RUN;
-
-PROC SORT DATA=sendData.nitrogenDiameter OUT=sendData.nitrogenDiameter;
-	BY year plot descending color pumpkinNum;
-RUN;
-
 PROC IMPORT OUT=sendData.leafData
 	DATAFILE="C:\Users\suggb\Documents\ST542\Project\PumpkinProject\CleanData\Excel\leafData.xlsx"
   DBMS=xlsx REPLACE;
