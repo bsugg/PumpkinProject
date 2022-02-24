@@ -86,22 +86,22 @@ blockquote {
   font-style:italic;
 }
 
-code {
+code { // Code font
   font-family: 'Lucida Sans', Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
   font-size:13px;
-  color:#2b2b2b;
-  text-shadow: 0px 1px 0px #000;
+  color:#2b2b2b; // Original #efefef
+  text-shadow: 0px 0px 0px #000; // Original 0px 1px 0px #000
   margin: 0 4px;
   padding: 2px 6px;
-  background: #Dededb;
+  background: #Dededb; // Original #333
   border-radius: 2px;
 }
 
-pre {
+pre { // Code block
   padding:8px 15px;
-  background: #333333;
+  background: #Dededb; // Original #333333
   border-radius: 3px;
-  border:1px solid #c7c7c7;
+  border: 1px solid #c7c7c7;
   overflow: auto;
   overflow-y: hidden;
 
