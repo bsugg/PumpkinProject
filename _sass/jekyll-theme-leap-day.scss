@@ -80,7 +80,8 @@ section img {
 }
 
 blockquote {
-  border-left:1px solid #ffcc00;
+  border-left:1px solid #CC0000;
+  //border-left:1px solid #ffcc00; // yellow something
   margin:0;
   padding:0 0 0 20px;
   font-style:italic;
@@ -112,7 +113,7 @@ pre { // Code block
 }
 
 kbd {
-  background-color: #204d7a;//#fafbfc
+  background-color: #fafbfc;
   border: 1px solid #c6cbd1;
   border-bottom-color: #959da5;
   border-radius: 3px;
