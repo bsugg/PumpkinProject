@@ -80,8 +80,7 @@ section img {
 }
 
 blockquote {
-  border-left:1px solid #CC0000;
-  //border-left:1px solid #ffcc00; // yellow something
+  border-left:1px solid #ffcc00; // yellow something
   margin:0;
   padding:0 0 0 20px;
   font-style:italic;
@@ -142,10 +141,10 @@ td {
   text-align:left;
   padding:5px 10px;
   border-bottom:1px solid #e5e5e5;
-  border-right: 1px solid #ffcc00;
+  border-right: 1px solid #CC0000; //ffcc00
 
   &:first-child {
-    border-left: 1px solid #ffcc00;
+    border-left: 1px solid #CC0000; //ffcc00
   }
 }
 
