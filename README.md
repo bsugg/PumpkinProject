@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 2/24/2022
+Last Update: 2/25/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -729,8 +729,8 @@ spacingData <- mutate(spacingData, standCountIdealPct = standCount/standCountIde
 
 # Create variable for volume spacingData <-
 # mutate(spacingData,volumeSphere=(4/3)*pi*(diameter/2)^3)
-spacingData <- mutate(spacingData, volumeEllipsoid = (4/3) * pi * (diameter/2) * 
-    (diameter/2) * (length/2))
+spacingData <- mutate(spacingData, volumeEllipsoid = round((4/3) * pi * 
+    (diameter/2) * (diameter/2) * (length/2), 1))
 
 # Arrange columns for presentation of final table for spacing data
 spacingData <- select(spacingData, c(11, 10, 1, 3, 2, 8, 15, 6, 4, 5, 16, 
@@ -986,8 +986,8 @@ nitrogenData <- left_join(nitrogenData, nitrogenDiameter)
 
 # Create variable for volume nitrogenData <-
 # mutate(nitrogenData,volumeSphere=(4/3)*pi*(diameter/2)^3)
-nitrogenData <- mutate(nitrogenData, volumeEllipsoid = (4/3) * pi * (diameter/2) * 
-    (diameter/2) * (length/2))
+nitrogenData <- mutate(nitrogenData, volumeEllipsoid = round((4/3) * pi * 
+    (diameter/2) * (diameter/2) * (length/2), 1))
 
 # Provide structure of transformed variables with data preview
 str(nitrogenData)
@@ -1148,6 +1148,8 @@ clicking the appropriate links in the subsequent sections.
 
 #### Variable Descriptions
 
+To be added…
+
   - spacingData  
   - nitrogenData  
   - leafData
@@ -1157,25 +1159,28 @@ clicking the appropriate links in the subsequent sections.
 ## Explore Spacing Study
 
 ``` r
-# Scatter plot of weight vs length for orange pumpkins
-plot(spacingDataOrange$length, spacingDataOrange$weight, xlab = "Length (Inches)", 
-    ylab = "Weight (Pounds)")
+# Scatter plot of weight vs length
+ggplot(spacingData, aes(x = length, y = weight, color = color)) + geom_point() + 
+    scale_color_manual(values = c("dark green", "dark orange")) + labs(x = "Length (Inches)", 
+    y = "Weight (Pounds)", color = "Pumpkin Color")
 ```
 
 ![](README_files/figure-gfm/exploreSpacingData-1.png)<!-- -->
 
 ``` r
-# Scatter plot of weight vs diameter for orange pumpkins
-plot(spacingDataOrange$diameter, spacingDataOrange$weight, xlab = "Diameter (Inches)", 
-    ylab = "Weight (Pounds)")
+# Scatter plot of weight vs diameter
+ggplot(spacingData, aes(x = diameter, y = weight, color = color)) + geom_point() + 
+    scale_color_manual(values = c("dark green", "dark orange")) + labs(x = "Diameter (Inches)", 
+    y = "Weight (Pounds)", color = "Pumpkin Color")
 ```
 
 ![](README_files/figure-gfm/exploreSpacingData-2.png)<!-- -->
 
 ``` r
-# Scatter plot of diameter vs length for orange pumpkins
-plot(spacingDataOrange$length, spacingDataOrange$diameter, xlab = "Length (Inches)", 
-    ylab = "Diameter (Inches)")
+# Scatter plot of diameter vs length
+ggplot(spacingData, aes(x = length, y = diameter, color = color)) + geom_point() + 
+    scale_color_manual(values = c("dark green", "dark orange")) + labs(x = "Length (Inches)", 
+    y = "Diameter (Inches)", color = "Pumpkin Color")
 ```
 
 ![](README_files/figure-gfm/exploreSpacingData-3.png)<!-- -->
@@ -1257,36 +1262,54 @@ ggplot(spacingData, aes(x = spacingArea, fill = color)) + geom_bar(stat = "count
 ## Explore Nitrogen Study
 
 ``` r
-# Scatter plot of weight vs length for orange pumpkins
-plot(nitrogenDataOrange$length, nitrogenDataOrange$weight, xlab = "Length (Inches)", 
-    ylab = "Weight (Pounds)")
+# Scatter plot of weight vs length
+ggplot(nitrogenData, aes(x = length, y = weight, color = color)) + geom_point() + 
+    scale_color_manual(values = c("dark green", "dark orange")) + labs(x = "Length (Inches)", 
+    y = "Weight (Pounds)", color = "Pumpkin Color")
 ```
+
+    ## Warning: Removed 498 rows containing missing values (geom_point).
 
 ![](README_files/figure-gfm/exploreNitrogenData-1.png)<!-- -->
 
 ``` r
-# Scatter plot of weight vs diameter for orange pumpkins
-plot(nitrogenDataOrange$diameter, nitrogenDataOrange$weight, xlab = "Diameter (Inches)", 
-    ylab = "Weight (Pounds)")
+# Scatter plot of weight vs diameter
+ggplot(nitrogenData, aes(x = diameter, y = weight, color = color)) + geom_point() + 
+    scale_color_manual(values = c("dark green", "dark orange")) + labs(x = "Diameter (Inches)", 
+    y = "Weight (Pounds)", color = "Pumpkin Color")
 ```
+
+    ## Warning: Removed 498 rows containing missing values (geom_point).
 
 ![](README_files/figure-gfm/exploreNitrogenData-2.png)<!-- -->
 
 ``` r
 # Box plot of weight vs treatment level for orange pumpkins
-plot(nitrogenDataOrange$treatment, nitrogenDataOrange$weight, xlab = "Treatment", 
-    ylab = "Weight (Pounds)")
+ggplot(nitrogenDataOrange, aes(x = treatment, y = weight, fill = treatment)) + 
+    geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none") + 
+    labs(x = "Treatment", y = "Weight (Pounds)")
 ```
 
 ![](README_files/figure-gfm/exploreNitrogenData-3.png)<!-- -->
 
 ``` r
-# Bar chart of count by spacing dimension for orange pumpkins
-ggplot(nitrogenDataOrange, aes(x = treatment, fill = treatment)) + geom_bar(stat = "count") + 
-    theme(legend.position = "none") + labs(x = "Treatment", y = "Pumpkin Count")
+# Box plot of volume vs treatment level for orange pumpkins
+ggplot(nitrogenDataOrange, aes(x = treatment, y = volumeEllipsoid, fill = treatment)) + 
+    geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none") + 
+    labs(x = "Treatment", y = "Volume Ellipsoid (Cubic Inches)")
 ```
 
+    ## Warning: Removed 98 rows containing non-finite values (stat_boxplot).
+
 ![](README_files/figure-gfm/exploreNitrogenData-4.png)<!-- -->
+
+``` r
+# Bar chart of count by spacing dimension for orange pumpkins
+ggplot(nitrogenDataOrange, aes(x = treatment, fill = treatment)) + geom_bar(stat = "count") + 
+    theme(legend.position = "none") + labs(x = "Treatment", y = "Orange Pumpkin Count")
+```
+
+![](README_files/figure-gfm/exploreNitrogenData-5.png)<!-- -->
 
 ``` r
 # Bar chart of color count by nitrogen treatment level
@@ -1296,7 +1319,7 @@ ggplot(nitrogenData, aes(x = treatment, fill = color)) + geom_bar(stat = "count"
     labs(x = "Treatment", y = "Pumpkin Count %", fill = "Pumpkin Color")
 ```
 
-![](README_files/figure-gfm/exploreNitrogenData-5.png)<!-- -->
+![](README_files/figure-gfm/exploreNitrogenData-6.png)<!-- -->
 
 ## Explore Leaf Study
 
@@ -1315,7 +1338,7 @@ Associated fertilizer application levels for each treatment:
 # Line chart by treatment level over time for Nitrogen
 ggplot(data = leafData, aes(x = date, y = nitrogenPct, color = treatment)) + 
     geom_line() + scale_y_continuous(labels = scales::percent_format(scale = 100)) + 
-    labs(x = "Date", y = "Nitrogen %", col = "Treatment")
+    labs(x = "Collection Date", y = "Nitrogen %", col = "Treatment")
 ```
 
 ![](README_files/figure-gfm/exploreLeafData-1.png)<!-- -->
@@ -1324,7 +1347,7 @@ ggplot(data = leafData, aes(x = date, y = nitrogenPct, color = treatment)) +
 # Line chart by treatment level over time for Phosphorus
 ggplot(data = leafData, aes(x = date, y = phosphorusPct, color = treatment)) + 
     geom_line() + scale_y_continuous(labels = scales::percent_format(scale = 100)) + 
-    labs(x = "Date", y = "Phosphorus %", col = "Treatment")
+    labs(x = "Collection Date", y = "Phosphorus %", col = "Treatment")
 ```
 
 ![](README_files/figure-gfm/exploreLeafData-2.png)<!-- -->
@@ -1333,7 +1356,7 @@ ggplot(data = leafData, aes(x = date, y = phosphorusPct, color = treatment)) +
 # Line chart by treatment level over time for Potassium
 ggplot(data = leafData, aes(x = date, y = potassiumPct, color = treatment)) + 
     geom_line() + scale_y_continuous(labels = scales::percent_format(scale = 100)) + 
-    labs(x = "Date", y = "Potassium %", col = "Treatment")
+    labs(x = "Collection Date", y = "Potassium %", col = "Treatment")
 ```
 
 ![](README_files/figure-gfm/exploreLeafData-3.png)<!-- -->
@@ -1344,12 +1367,4 @@ To be conducted…
 
 # Conclusions
 
-include = FALSE prevents code and results from appearing in the finished
-file. R Markdown still runs the code in the chunk  
-echo = FALSE prevents code, but not the results from appearing in the
-finished file. This is a useful way to embed figures  
-message = FALSE prevents messages that are generated by code from
-appearing in the finished file  
-warning = FALSE prevents warnings that are generated by code from
-appearing in the finished  
-fig.cap = “…” adds a caption to graphical results
+To be conducted…
