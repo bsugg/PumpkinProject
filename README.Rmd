@@ -775,9 +775,7 @@ Specific files of desired format (R, SAS, or Excel) can be downloaded by clickin
 
 # Data Exploration  
 
-## Plots and Charts  
-
-### Spacing Study  
+## Spacing Study  
 
 ```{r exploreSpacingData}
 # Scatter plot of weight vs length
@@ -816,7 +814,7 @@ ggplot(spacingData, aes(x=spacingArea,y=volumeEllipsoid,fill=spacingArea)) +
    theme(legend.position="none")
 ```
 
-### Nitrogen Study  
+## Nitrogen Study  
 
 ```{r exploreNitrogenData}
 # Scatter plot of weight vs length
@@ -835,7 +833,7 @@ plot(nitrogenWeight$treatment,nitrogenWeight$weight,
      ylab="Weight (lbs)")
 ```
 
-### Leaf Study  
+## Leaf Study  
 
 Associated fertilizer application levels for each treatment:  
 
