@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 2/22/2022
+Last Update: 2/24/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -57,11 +57,16 @@ Research Station under the care of North Carolina Extension Agents.
 
 ## Expectations
 
-This project will be expected to deliver…
+This project will be expected to deliver:
 
-1.  One  
-2.  Two  
-3.  Three
+1.  A response to the proposed hyptheses:
+      - *Pumpkins grown closer together will have a higher overall
+        yield.*  
+      - *Higher leaf nitrogen composition will indicate higher
+        yields.*  
+2.  Documentation of how the analysis was conducted  
+3.  Clean data files and visuals  
+4.  Pumpkin bin optimization analysis
 
 Following the below delivery timeline for each phase of work:
 
