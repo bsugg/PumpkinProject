@@ -248,7 +248,7 @@ Check columns to gather and ensure in Excel the columns with metrics are 6 to 53
 Adjust both the year and pumpkin ID variables to reflect year 2020.  
 Remove or correct data errors/outliers.  
 
-```{r readExcel2020spacing, cache=TRUE}
+```{r readExcel2020spacing, message=FALSE, cache=TRUE}
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA records
 spacingWeight <- read_excel(path="./ReadData/2020pumpkinData.xlsx", sheet="Spacing Weight")
 spacingWeight <- gather(spacingWeight,key="Pumpkin",value="Weight",6:53)
@@ -321,7 +321,7 @@ if(sum(spacingData2020$pumpkinID=="2020-S-201-17")==1) {
 
 Check workbook names and worksheet names for each of the 3 read_excel functions.  
 
-```{r readExcel2021spacing, cache=TRUE}
+```{r readExcel2021spacing, message=FALSE, cache=TRUE}
 # Read sheet with WEIGHTS, transform from wide to tall, remove NA records
 spacingWeight <- read_excel(path="./ReadData/2021pumpkinData.xlsx", sheet="Spacing Weights (lbs)")
 spacingWeight <- gather(spacingWeight,key="Pumpkin",value="Weight",8:55)
@@ -466,7 +466,7 @@ nitrogenDiameter <- rbind(nitrogenDiameterOrange,nitrogenDiameterGreen)
 Check worksheet names for each of the 3 read_excel functions.  
 Check columns used in gather() function.  
 
-```{r readExcel2021leaf, cache=TRUE}
+```{r readExcel2021leaf, message=FALSE, cache=TRUE}
 # Read sheet with NITROGEN %, transform from wide to tall, remove NA records
 leafNitrogen <- read_excel(path="./ReadData/2021pumpkinData.xlsx", sheet="Leaf Analysis Nitrogen (%)")
 leafNitrogen <- gather(leafNitrogen,key="Date",value="Nitrogen",5:12)
@@ -563,6 +563,9 @@ spacingData$inRow <- as.factor(spacingData$inRow)
 # Provide structure of transformed variables with data preview
 str(spacingData)
 spacingData
+
+# Create subset with only orange pumpkins
+spacingDataOrange <- subset(spacingData,color=="Orange")
 ```
 
 ### Nitrogen Study  
@@ -647,7 +650,7 @@ nitrogenDiameter
 
 #### All Measures  
 
-```{r transformNitrogenData, cache=TRUE}
+```{r transformNitrogenData, message=FALSE, cache=TRUE}
 # Join all nitrogen metrics into one table
 # Left join used with weight as base as limited length and diameter metrics were collected
 nitrogenData <- left_join(nitrogenWeight,nitrogenLength)
@@ -660,6 +663,9 @@ nitrogenData <- mutate(nitrogenData,volumeEllipsoid=(4/3)*pi*(diameter/2)*(diame
 # Provide structure of transformed variables with data preview
 str(nitrogenData)
 nitrogenData
+
+# Create subset with only orange pumpkins
+nitrogenDataOrange <- subset(nitrogenData,color=="Orange")
 ```
 
 ### Leaf Composition Study  
@@ -775,65 +781,124 @@ Specific files of desired format (R, SAS, or Excel) can be downloaded by clickin
 
 # Data Exploration  
 
-## Spacing Study  
+## Explore Spacing Study  
 
 ```{r exploreSpacingData}
-# Scatter plot of weight vs length
-plot(spacingData$length,spacingData$weight,
-     xlab="Length (in)",
-     ylab="Weight (lbs)")
+# Scatter plot of weight vs length for orange pumpkins
+plot(spacingDataOrange$length,spacingDataOrange$weight,
+     xlab="Length (Inches)",
+     ylab="Weight (Pounds)")
 
-# Scatter plot of weight vs diameter
-plot(spacingData$diameter,spacingData$weight,
-     xlab="Diameter (in)",
-     ylab="Weight (lbs)")
+# Scatter plot of weight vs diameter for orange pumpkins
+plot(spacingDataOrange$diameter,spacingDataOrange$weight,
+     xlab="Diameter (Inches)",
+     ylab="Weight (Pounds)")
 
-# Scatter plot of diameter vs length
-plot(spacingData$length,spacingData$diameter,
-     xlab="Length (in)",
-     ylab="Diameter (in)")
+# Scatter plot of diameter vs length for orange pumpkins
+plot(spacingDataOrange$length,spacingDataOrange$diameter,
+     xlab="Length (Inches)",
+     ylab="Diameter (Inches)")
 
-# Boxplot of weight by spacing dimension
-ggplot(spacingData, aes(x=spacingDim,y=weight,fill=spacingDim)) +
+# Boxplot of weight by spacing dimension for orange pumpkins
+ggplot(spacingDataOrange, aes(x=spacingDim,y=weight,fill=spacingDim)) +
    geom_boxplot(varwidth = TRUE, alpha=0.2) +
-   theme(legend.position="none")
+   theme(legend.position="none") +
+   labs(x="Spacing Dimension (Feet)",
+        y="Weight (Pounds)")
 
-# Boxplot of weight by spacing area
-ggplot(spacingData, aes(x=spacingArea,y=weight,fill=spacingArea)) +
+# Boxplot of weight by spacing area for orange pumpkins
+ggplot(spacingDataOrange, aes(x=spacingArea,y=weight,fill=spacingArea)) +
    geom_boxplot(varwidth = TRUE, alpha=0.2) +
-   theme(legend.position="none")
+   theme(legend.position="none") +
+   labs(x="Spacing Area (Square Feet)",
+        y="Weight (Pounds)")
 
-# Boxplot of volume by spacing dimension
-ggplot(spacingData, aes(x=spacingDim,y=volumeEllipsoid,fill=spacingDim)) +
+# Boxplot of volume by spacing dimension for orange pumpkins
+ggplot(spacingDataOrange, aes(x=spacingDim,y=volumeEllipsoid,fill=spacingDim)) +
    geom_boxplot(varwidth = TRUE, alpha=0.2) +
-   theme(legend.position="none")
+   theme(legend.position="none") +
+   labs(x="Spacing Dimension (Feet)",
+        y="Ellipsoid Volume (Cubic Inches)")
 
-# Boxplot of volume by spacing area
-ggplot(spacingData, aes(x=spacingArea,y=volumeEllipsoid,fill=spacingArea)) +
-   geom_boxplot(varwidth = TRUE, alpha=0.2) +
-   theme(legend.position="none")
+# Boxplot of volume by spacing area for orange pumpkins
+ggplot(spacingDataOrange, aes(x=spacingArea,y=volumeEllipsoid,fill=spacingArea)) +
+  geom_boxplot(varwidth = TRUE, alpha=0.2) +
+  theme(legend.position="none") +
+  labs(x="Spacing Area (Square Feet)",
+       y="Ellipsoid Volume (Cubic Inches)")
+
+# Bar chart of count by spacing dimension for orange pumpkins
+ggplot(spacingDataOrange, aes(x=spacingDim,fill=spacingDim)) +
+  geom_bar(stat = "count") +
+  theme(legend.position="none") +
+  labs(x="Spacing Dimension (Feet)",
+       y="Orange Pumpkin Count")
+
+# Bar chart of count by spacing area for orange pumpkins
+ggplot(spacingDataOrange, aes(x=spacingArea,fill=spacingArea)) +
+  geom_bar(stat = "count") +
+  theme(legend.position="none") +
+  labs(x="Spacing Area (Square Feet)",
+       y="Orange Pumpkin Count")
+
+# Bar chart of color count by spacing dimension
+ggplot(spacingData, aes(x=spacingDim,fill=color)) +
+  geom_bar(stat = "count",
+           position = "fill") +
+  scale_fill_manual(values = c("dark green", "dark orange")) +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+  labs(x="Spacing Dimension (Feet)",
+       y="Pumpkin Count %",
+       fill="Pumpkin Color")
+
+# Bar chart of color count by spacing area
+ggplot(spacingData, aes(x=spacingArea,fill=color)) +
+  geom_bar(stat = "count",
+           position = "fill") +
+  scale_fill_manual(values = c("dark green", "dark orange")) +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+  labs(x="Spacing Area (Square Feet)",
+       y="Pumpkin Count %",
+       fill="Pumpkin Color")
 ```
 
-## Nitrogen Study  
+## Explore Nitrogen Study  
 
 ```{r exploreNitrogenData}
-# Scatter plot of weight vs length
-plot(nitrogenData$length,nitrogenData$weight,
-     xlab="Length (in)",
-     ylab="Weight (lbs)")
+# Scatter plot of weight vs length for orange pumpkins
+plot(nitrogenDataOrange$length,nitrogenDataOrange$weight,
+     xlab="Length (Inches)",
+     ylab="Weight (Pounds)")
 
-# Scatter plot of weight vs diameter
-plot(nitrogenData$diameter,nitrogenData$weight,
-     xlab="Diameter (in)",
-     ylab="Weight (lbs)")
+# Scatter plot of weight vs diameter for orange pumpkins
+plot(nitrogenDataOrange$diameter,nitrogenDataOrange$weight,
+     xlab="Diameter (Inches)",
+     ylab="Weight (Pounds)")
 
-# Box plot of weight vs treatment level
-plot(nitrogenWeight$treatment,nitrogenWeight$weight,
+# Box plot of weight vs treatment level for orange pumpkins
+plot(nitrogenDataOrange$treatment,nitrogenDataOrange$weight,
      xlab="Treatment",
-     ylab="Weight (lbs)")
+     ylab="Weight (Pounds)")
+
+# Bar chart of count by spacing dimension for orange pumpkins
+ggplot(nitrogenDataOrange, aes(x=treatment,fill=treatment)) +
+  geom_bar(stat = "count") +
+  theme(legend.position="none") +
+  labs(x="Treatment",
+       y="Pumpkin Count")
+
+# Bar chart of color count by nitrogen treatment level
+ggplot(nitrogenData, aes(x=treatment,fill=color)) +
+  geom_bar(stat = "count",
+           position = "fill") +
+  scale_fill_manual(values = c("dark green", "dark orange")) +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+  labs(x="Treatment",
+       y="Pumpkin Count %",
+       fill="Pumpkin Color")
 ```
 
-## Leaf Study  
+## Explore Leaf Study  
 
 Associated fertilizer application levels for each treatment:  
 
@@ -847,15 +912,27 @@ Associated fertilizer application levels for each treatment:
 ```{r exploreLeafData}
 # Line chart by treatment level over time for Nitrogen
 ggplot(data=leafData,aes(x=date,y=nitrogenPct,color=treatment))+
-  geom_line()
+  geom_line() +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+  labs(x="Date",
+       y="Nitrogen %",
+       col="Treatment")
 
 # Line chart by treatment level over time for Phosphorus
 ggplot(data=leafData,aes(x=date,y=phosphorusPct,color=treatment))+
-  geom_line()
+  geom_line() +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+  labs(x="Date",
+       y="Phosphorus %",
+       col="Treatment")
 
 # Line chart by treatment level over time for Potassium
 ggplot(data=leafData,aes(x=date,y=potassiumPct,color=treatment))+
-  geom_line()
+  geom_line() +
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+  labs(x="Date",
+       y="Potassium %",
+       col="Treatment")
 ```
 
 # Analysis  
