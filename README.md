@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 2/25/2022
+Last Update: 3/10/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -1362,6 +1362,10 @@ ggplot(data = leafData, aes(x = date, y = potassiumPct, color = treatment)) +
 ![](README_files/figure-gfm/exploreLeafData-3.png)<!-- -->
 
 # Analysis
+
+![](README_files/figure-gfm/spacingANOVA-1.png)<!-- -->![](README_files/figure-gfm/spacingANOVA-2.png)<!-- -->![](README_files/figure-gfm/spacingANOVA-3.png)<!-- -->![](README_files/figure-gfm/spacingANOVA-4.png)<!-- -->
+
+![](README_files/figure-gfm/nitrogenANOVA-1.png)<!-- -->![](README_files/figure-gfm/nitrogenANOVA-2.png)<!-- -->![](README_files/figure-gfm/nitrogenANOVA-3.png)<!-- -->![](README_files/figure-gfm/nitrogenANOVA-4.png)<!-- -->
 
 To be conducted…
 

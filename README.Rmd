@@ -1,6 +1,6 @@
 ---
 title: "Project Phases"
-date: "Last Update: 2/25/2022"
+date: "Last Update: 3/10/2022"
 output:
   rmarkdown::github_document:
     toc: false
@@ -962,6 +962,28 @@ ggplot(data=leafData,aes(x=date,y=potassiumPct,color=treatment))+
 ```
 
 # Analysis  
+
+```{r spacingANOVA, echo=FALSE, results=FALSE}
+# One way ANOVA for spacing study
+spacingOWA <- aov(volumeEllipsoid ~ spacingDim,data=spacingData)
+summary(spacingOWA)
+plot(spacingOWA)
+
+# Tukey’s HSD test for pairwise comparisons
+tukey <- TukeyHSD(spacingOWA)
+tukey
+```
+
+```{r nitrogenANOVA, echo=FALSE, results=FALSE}
+# One way ANOVA for nitrogen study
+nitrogenOWA <- aov(volumeEllipsoid ~ nitrogenRate,data=nitrogenData)
+summary(nitrogenOWA)
+plot(nitrogenOWA)
+
+# Tukey’s HSD test for pairwise comparisons
+tukeyN <- TukeyHSD(nitrogenOWA)
+tukeyN
+```
 
 To be conducted...  
 
