@@ -5,8 +5,9 @@ account: bsugg
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5663526
-bundleId: 5583409
+bundleId: 5792631
 url: https://bsugg.shinyapps.io/ShinyPumpkinProject/
-when: 1644974704.49406
+when: 1649821372.29597
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: Backup/server.R|Backup/ui.R
