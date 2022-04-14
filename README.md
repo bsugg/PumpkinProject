@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 3/10/2022
+Last Update: 4/7/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -132,6 +132,12 @@ worksheets:
     spaced by “,” (“comma space”) for parsing during the import
     process  
 7.  Repeated the above steps 1 - 6 for the other two worksheets
+
+**Note:** The `Diameter` value for `Plot` 301 `Fruit` 11 in the `Spacing
+Diameter` worksheet was listed as `17` which looked large upon initial
+evaluation, compared to others of the similar weight and diameter.
+Confirmed with client this was an input error due to messy handwriting,
+and updated to reflect the intended value of `14`.
 
 Finally, the file was renamed to `2020pumpkinData.xlsx` after formatting
 for easy future reference.
@@ -298,6 +304,18 @@ worksheets for the leaf composition study:
       - Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
 5.  Repeated the above steps 1 - 4 for the other two leaf composition
     study worksheets
+
+**Note:** The `Diameter` value for `Plot` 301 `Orange Fruit` 1 in the
+`Nitrogen Diameters (inches) O` worksheet was listed as `15.2` which
+looked large upon initial evaluation, compared to others of the similar
+weight and diameter. Confirmed with client this was an input error due
+to messy handwriting, and updated to reflect the intended value of
+`13.2`.
+
+**Note:** The `Ideal Stand Count` value for `Plot` 301 in all three
+`Spacing ...` worksheets was listed as `10`. Updated to reflect the
+correct ideal stand count value of `20` that was associated with this
+plot in all three worksheets.
 
 **Note:** The `Nitrogen Rate` value for `Plot` 302 in the `Leaf Analysis
 Nitrogen (%)` worksheet was blank. Updated to reflect the value of `200
@@ -692,9 +710,9 @@ leafData <- mutate(leafData, year = "2021")
 spacingData <- rbind(spacingData2020, spacingData2021)
 
 # Format variables
-spacingData$plot <- as.factor(spacingData$plot)
+spacingData$plot <- as.factor(paste0(spacingData$year, "-", spacingData$plot))
 spacingData$treatment <- as.factor(spacingData$treatment)
-spacingData$rep <- as.factor(spacingData$rep)
+spacingData$rep <- as.factor(paste0(spacingData$year, "-", spacingData$rep))
 spacingData$pumpkinNum <- as.numeric(spacingData$pumpkinNum)
 spacingData$year <- as.factor(spacingData$year)
 
@@ -712,11 +730,11 @@ spacingData$color <- as.factor(spacingData$color)
 spacingData$pumpkinID <- paste0(spacingData$year, "-", "S", "-", spacingData$plot, 
     "-", spacingData$color, "-", spacingData$pumpkinNum)
 
-# Create variable for spacing area and transform spacing variables
+# Create variable for plant area and transform spacing variables
 # factors
-spacingData <- mutate(spacingData, spacingArea = sapply(strsplit(as.character(spacingDim), 
+spacingData <- mutate(spacingData, plantArea = sapply(strsplit(as.character(spacingDim), 
     split = " x "), function(x) prod(as.numeric(x))))
-spacingData$spacingArea <- as.factor(spacingData$spacingArea)
+spacingData$plantArea <- as.factor(spacingData$plantArea)
 spacingData$spacingDim <- as.character(spacingData$spacingDim)
 
 # Ensure metrics are all numerical
@@ -732,9 +750,15 @@ spacingData <- mutate(spacingData, standCountIdealPct = standCount/standCountIde
 spacingData <- mutate(spacingData, volumeEllipsoid = round((4/3) * pi * 
     (diameter/2) * (diameter/2) * (length/2), 1))
 
+# Create rounded variables for diameter, both down and up
+spacingData <- mutate(spacingData, diameterRoundDown = floor(diameter))
+spacingData$diameterRoundDown <- as.factor(spacingData$diameterRoundDown)
+spacingData <- mutate(spacingData, diameterRoundUp = ceiling(diameter))
+spacingData$diameterRoundUp <- as.factor(spacingData$diameterRoundUp)
+
 # Arrange columns for presentation of final table for spacing data
 spacingData <- select(spacingData, c(11, 10, 1, 3, 2, 8, 15, 6, 4, 5, 16, 
-    14, 9, 12, 13, 17))
+    14, 9, 12, 13, 17, 18, 19))
 
 # Split spacingDim for betweenRow and inRow columns
 spacingData <- separate(spacingData, spacingDim, into = c("betweenRow", 
@@ -743,18 +767,26 @@ spacingData$spacingDim <- as.factor(spacingData$spacingDim)
 spacingData$betweenRow <- as.factor(spacingData$betweenRow)
 spacingData$inRow <- as.factor(spacingData$inRow)
 
+# Create variables for plot area and harvest area (square feet)
+spacingData <- mutate(spacingData, plotArea = ifelse(betweenRow == "10", 
+    1600, ifelse(betweenRow == "5", 800, NA)))
+spacingData$plotArea <- as.numeric(spacingData$plotArea)
+spacingData <- mutate(spacingData, harvestArea = ifelse(betweenRow == "10", 
+    400, ifelse(betweenRow == "5", 200, NA)))
+spacingData$harvestArea <- as.numeric(spacingData$harvestArea)
+
 # Provide structure of transformed variables with data preview
 str(spacingData)
 ```
 
-    ## tibble [1,259 x 18] (S3: tbl_df/tbl/data.frame)
-    ##  $ pumpkinID         : chr [1:1259] "2020-S-101-Green-1" "2020-S-102-Green-1" "2020-S-103-Orange-1" "2020-S-104-Green-1" ...
+    ## tibble [1,259 x 22] (S3: tbl_df/tbl/data.frame)
+    ##  $ pumpkinID         : chr [1:1259] "2020-S-2020-101-Green-1" "2020-S-2020-102-Green-1" "2020-S-2020-103-Orange-1" "2020-S-2020-104-Green-1" ...
     ##  $ year              : Factor w/ 2 levels "2020","2021": 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ plot              : Factor w/ 32 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
-    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 1 1 2 2 ...
+    ##  $ plot              : Factor w/ 56 levels "2020-101","2020-102",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 7 levels "2020-1","2020-2",..: 1 1 1 1 1 1 1 1 2 2 ...
     ##  $ treatment         : Factor w/ 8 levels "1","2","3","4",..: 1 2 3 4 5 6 7 8 3 1 ...
     ##  $ pumpkinNum        : num [1:1259] 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ spacingArea       : Factor w/ 4 levels "10","20","30",..: 1 2 3 4 1 2 3 4 3 1 ...
+    ##  $ plantArea         : Factor w/ 4 levels "10","20","30",..: 1 2 3 4 1 2 3 4 3 1 ...
     ##  $ spacingDim        : Factor w/ 8 levels "10 x 1","10 x 2",..: 1 2 3 4 5 6 7 8 3 1 ...
     ##  $ betweenRow        : Factor w/ 2 levels "10","5": 1 1 1 1 2 2 2 2 1 1 ...
     ##  $ inRow             : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 2 4 5 6 3 1 ...
@@ -766,28 +798,33 @@ str(spacingData)
     ##  $ length            : num [1:1259] 11.1 9.3 16.1 13.5 11.5 11.4 12.7 12.9 12.3 10.1 ...
     ##  $ diameter          : num [1:1259] 11.3 10.1 15.8 15.2 12.3 12.6 13.5 14.3 13.1 10.1 ...
     ##  $ volumeEllipsoid   : num [1:1259] 742 497 2104 1633 911 ...
+    ##  $ diameterRoundDown : Factor w/ 11 levels "7","8","9","10",..: 5 4 9 9 6 6 7 8 7 4 ...
+    ##  $ diameterRoundUp   : Factor w/ 11 levels "7","8","9","10",..: 6 5 10 10 7 7 8 9 8 5 ...
+    ##  $ plotArea          : num [1:1259] 1600 1600 1600 1600 800 800 800 800 1600 1600 ...
+    ##  $ harvestArea       : num [1:1259] 400 400 400 400 200 200 200 200 400 400 ...
 
 ``` r
 spacingData
 ```
 
-    ## # A tibble: 1,259 x 18
-    ##    pumpkinID year  plot  rep   treatment pumpkinNum spacingArea spacingDim
-    ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>       <fct>     
-    ##  1 2020-S-1~ 2020  101   1     1                  1 10          10 x 1    
-    ##  2 2020-S-1~ 2020  102   1     2                  1 20          10 x 2    
-    ##  3 2020-S-1~ 2020  103   1     3                  1 30          10 x 3    
-    ##  4 2020-S-1~ 2020  104   1     4                  1 40          10 x 4    
-    ##  5 2020-S-1~ 2020  105   1     5                  1 10          5 x 2     
-    ##  6 2020-S-1~ 2020  106   1     6                  1 20          5 x 4     
-    ##  7 2020-S-1~ 2020  107   1     7                  1 30          5 x 6     
-    ##  8 2020-S-1~ 2020  108   1     8                  1 40          5 x 8     
-    ##  9 2020-S-2~ 2020  201   2     3                  1 30          10 x 3    
-    ## 10 2020-S-2~ 2020  202   2     1                  1 10          10 x 1    
-    ## # ... with 1,249 more rows, and 10 more variables: betweenRow <fct>,
+    ## # A tibble: 1,259 x 22
+    ##    pumpkinID year  plot  rep   treatment pumpkinNum plantArea spacingDim
+    ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>     <fct>     
+    ##  1 2020-S-2~ 2020  2020~ 2020~ 1                  1 10        10 x 1    
+    ##  2 2020-S-2~ 2020  2020~ 2020~ 2                  1 20        10 x 2    
+    ##  3 2020-S-2~ 2020  2020~ 2020~ 3                  1 30        10 x 3    
+    ##  4 2020-S-2~ 2020  2020~ 2020~ 4                  1 40        10 x 4    
+    ##  5 2020-S-2~ 2020  2020~ 2020~ 5                  1 10        5 x 2     
+    ##  6 2020-S-2~ 2020  2020~ 2020~ 6                  1 20        5 x 4     
+    ##  7 2020-S-2~ 2020  2020~ 2020~ 7                  1 30        5 x 6     
+    ##  8 2020-S-2~ 2020  2020~ 2020~ 8                  1 40        5 x 8     
+    ##  9 2020-S-2~ 2020  2020~ 2020~ 3                  1 30        10 x 3    
+    ## 10 2020-S-2~ 2020  2020~ 2020~ 1                  1 10        10 x 1    
+    ## # ... with 1,249 more rows, and 14 more variables: betweenRow <fct>,
     ## #   inRow <fct>, standCount <dbl>, standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
-    ## #   diameter <dbl>, volumeEllipsoid <dbl>
+    ## #   diameter <dbl>, volumeEllipsoid <dbl>, diameterRoundDown <fct>,
+    ## #   diameterRoundUp <fct>, plotArea <dbl>, harvestArea <dbl>
 
 ``` r
 # Create subset with only orange pumpkins
@@ -800,13 +837,13 @@ spacingDataOrange <- subset(spacingData, color == "Orange")
 
 ``` r
 # Format variables
-nitrogenWeight$plot <- as.factor(nitrogenWeight$plot)
 nitrogenWeight$nitrogenRate <- as.factor(nitrogenWeight$nitrogenRate)
 nitrogenWeight$treatment <- as.factor(nitrogenWeight$treatment)
-nitrogenWeight$rep <- as.factor(nitrogenWeight$rep)
 nitrogenWeight$pumpkinNum <- as.numeric(nitrogenWeight$pumpkinNum)
 nitrogenWeight$color <- as.factor(nitrogenWeight$color)
 nitrogenWeight$year <- as.factor(nitrogenWeight$year)
+nitrogenWeight$plot <- as.factor(paste0(nitrogenWeight$year, "-", nitrogenWeight$plot))
+nitrogenWeight$rep <- as.factor(paste0(nitrogenWeight$year, "-", nitrogenWeight$rep))
 
 # Ensure metrics are all numerical
 nitrogenWeight$weight <- as.numeric(nitrogenWeight$weight)
@@ -825,8 +862,8 @@ str(nitrogenWeight)
     ## tibble [618 x 12] (S3: tbl_df/tbl/data.frame)
     ##  $ pumpkinID         : chr [1:618] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
     ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
-    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ plot              : Factor w/ 24 levels "2021-101","2021-102",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "2021-1","2021-2",..: 1 1 1 1 1 1 2 2 2 2 ...
     ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
     ##  $ pumpkinNum        : num [1:618] 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
@@ -843,16 +880,16 @@ nitrogenWeight
     ## # A tibble: 618 x 12
     ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
     ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
-    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
-    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
-    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
-    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
-    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
-    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
-    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
-    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
-    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
-    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ##  1 2021-N-1~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  2021~ 2021~ 3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  2021~ 2021~ 6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            8
     ## # ... with 608 more rows, and 4 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>
 
@@ -860,13 +897,13 @@ nitrogenWeight
 
 ``` r
 # Format variables
-nitrogenLength$plot <- as.factor(nitrogenLength$plot)
 nitrogenLength$nitrogenRate <- as.factor(nitrogenLength$nitrogenRate)
 nitrogenLength$treatment <- as.factor(nitrogenLength$treatment)
-nitrogenLength$rep <- as.factor(nitrogenLength$rep)
 nitrogenLength$pumpkinNum <- as.numeric(nitrogenLength$pumpkinNum)
 nitrogenLength$color <- as.factor(nitrogenLength$color)
 nitrogenLength$year <- as.factor(nitrogenLength$year)
+nitrogenLength$plot <- as.factor(paste0(nitrogenLength$year, "-", nitrogenLength$plot))
+nitrogenLength$rep <- as.factor(paste0(nitrogenLength$year, "-", nitrogenLength$rep))
 
 # Ensure metrics are all numerical
 nitrogenLength$length <- as.numeric(nitrogenLength$length)
@@ -885,8 +922,8 @@ str(nitrogenLength)
     ## tibble [120 x 12] (S3: tbl_df/tbl/data.frame)
     ##  $ pumpkinID         : chr [1:120] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
     ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
-    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ plot              : Factor w/ 24 levels "2021-101","2021-102",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "2021-1","2021-2",..: 1 1 1 1 1 1 2 2 2 2 ...
     ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
     ##  $ pumpkinNum        : num [1:120] 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
@@ -903,16 +940,16 @@ nitrogenLength
     ## # A tibble: 120 x 12
     ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
     ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
-    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
-    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
-    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
-    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
-    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
-    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
-    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
-    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
-    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
-    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ##  1 2021-N-1~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  2021~ 2021~ 3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  2021~ 2021~ 6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            8
     ## # ... with 110 more rows, and 4 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, length <dbl>
 
@@ -920,13 +957,13 @@ nitrogenLength
 
 ``` r
 # Format variables
-nitrogenDiameter$plot <- as.factor(nitrogenDiameter$plot)
 nitrogenDiameter$nitrogenRate <- as.factor(nitrogenDiameter$nitrogenRate)
 nitrogenDiameter$treatment <- as.factor(nitrogenDiameter$treatment)
-nitrogenDiameter$rep <- as.factor(nitrogenDiameter$rep)
 nitrogenDiameter$pumpkinNum <- as.numeric(nitrogenDiameter$pumpkinNum)
 nitrogenDiameter$color <- as.factor(nitrogenDiameter$color)
 nitrogenDiameter$year <- as.factor(nitrogenDiameter$year)
+nitrogenDiameter$plot <- as.factor(paste0(nitrogenDiameter$year, "-", nitrogenDiameter$plot))
+nitrogenDiameter$rep <- as.factor(paste0(nitrogenDiameter$year, "-", nitrogenDiameter$rep))
 
 # Ensure metrics are all numerical
 nitrogenDiameter$diameter <- as.numeric(nitrogenDiameter$diameter)
@@ -945,8 +982,8 @@ str(nitrogenDiameter)
     ## tibble [120 x 12] (S3: tbl_df/tbl/data.frame)
     ##  $ pumpkinID         : chr [1:120] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
     ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
-    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ plot              : Factor w/ 24 levels "2021-101","2021-102",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "2021-1","2021-2",..: 1 1 1 1 1 1 2 2 2 2 ...
     ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
     ##  $ pumpkinNum        : num [1:120] 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
@@ -963,16 +1000,16 @@ nitrogenDiameter
     ## # A tibble: 120 x 12
     ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
     ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
-    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
-    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
-    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
-    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
-    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
-    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
-    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
-    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
-    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
-    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
+    ##  1 2021-N-1~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  2021~ 2021~ 3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  2021~ 2021~ 6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            8
     ## # ... with 110 more rows, and 4 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, diameter <dbl>
 
@@ -989,15 +1026,21 @@ nitrogenData <- left_join(nitrogenData, nitrogenDiameter)
 nitrogenData <- mutate(nitrogenData, volumeEllipsoid = round((4/3) * pi * 
     (diameter/2) * (diameter/2) * (length/2), 1))
 
+# Create rounded variables for diameter, both down and up
+nitrogenData <- mutate(nitrogenData, diameterRoundDown = floor(diameter))
+nitrogenData$diameterRoundDown <- as.factor(nitrogenData$diameterRoundDown)
+nitrogenData <- mutate(nitrogenData, diameterRoundUp = ceiling(diameter))
+nitrogenData$diameterRoundUp <- as.factor(nitrogenData$diameterRoundUp)
+
 # Provide structure of transformed variables with data preview
 str(nitrogenData)
 ```
 
-    ## tibble [618 x 15] (S3: tbl_df/tbl/data.frame)
+    ## tibble [618 x 17] (S3: tbl_df/tbl/data.frame)
     ##  $ pumpkinID         : chr [1:618] "2021-N-101-Orange-1" "2021-N-102-Orange-1" "2021-N-103-Orange-1" "2021-N-104-Orange-1" ...
     ##  $ year              : Factor w/ 1 level "2021": 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ plot              : Factor w/ 24 levels "101","102","103",..: 1 2 3 4 5 6 7 8 9 10 ...
-    ##  $ rep               : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 1 1 2 2 2 2 ...
+    ##  $ plot              : Factor w/ 24 levels "2021-101","2021-102",..: 1 2 3 4 5 6 7 8 9 10 ...
+    ##  $ rep               : Factor w/ 4 levels "2021-1","2021-2",..: 1 1 1 1 1 1 2 2 2 2 ...
     ##  $ treatment         : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 4 5 6 2 4 5 1 ...
     ##  $ pumpkinNum        : num [1:618] 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ nitrogenRate      : Factor w/ 6 levels "0 lbs/acre","120 lbs/acre",..: 1 5 6 2 3 4 5 2 3 1 ...
@@ -1009,27 +1052,30 @@ str(nitrogenData)
     ##  $ length            : num [1:618] 13.6 12.5 13.9 12.5 10.1 12.3 12.5 12 13.7 13 ...
     ##  $ diameter          : num [1:618] 15.1 13.7 14.9 13.5 11.7 14.6 12.7 12.3 14.6 13.3 ...
     ##  $ volumeEllipsoid   : num [1:618] 1624 1228 1616 1193 724 ...
+    ##  $ diameterRoundDown : Factor w/ 6 levels "11","12","13",..: 5 3 4 3 1 4 2 2 4 3 ...
+    ##  $ diameterRoundUp   : Factor w/ 7 levels "11","12","13",..: 6 4 5 4 2 5 3 3 5 4 ...
 
 ``` r
 nitrogenData
 ```
 
-    ## # A tibble: 618 x 15
+    ## # A tibble: 618 x 17
     ##    pumpkinID year  plot  rep   treatment pumpkinNum nitrogenRate standCount
     ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>             <dbl>
-    ##  1 2021-N-1~ 2021  101   1     1                  1 0 lbs/acre            7
-    ##  2 2021-N-1~ 2021  102   1     2                  1 40 lbs/acre           6
-    ##  3 2021-N-1~ 2021  103   1     3                  1 80 lbs/acre           7
-    ##  4 2021-N-1~ 2021  104   1     4                  1 120 lbs/acre          6
-    ##  5 2021-N-1~ 2021  105   1     5                  1 160 lbs/acre          7
-    ##  6 2021-N-1~ 2021  106   1     6                  1 200 lbs/acre          3
-    ##  7 2021-N-2~ 2021  201   2     2                  1 40 lbs/acre           7
-    ##  8 2021-N-2~ 2021  202   2     4                  1 120 lbs/acre          7
-    ##  9 2021-N-2~ 2021  203   2     5                  1 160 lbs/acre          8
-    ## 10 2021-N-2~ 2021  204   2     1                  1 0 lbs/acre            8
-    ## # ... with 608 more rows, and 7 more variables: standCountIdeal <dbl>,
+    ##  1 2021-N-1~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            7
+    ##  2 2021-N-1~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           6
+    ##  3 2021-N-1~ 2021  2021~ 2021~ 3                  1 80 lbs/acre           7
+    ##  4 2021-N-1~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          6
+    ##  5 2021-N-1~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          7
+    ##  6 2021-N-1~ 2021  2021~ 2021~ 6                  1 200 lbs/acre          3
+    ##  7 2021-N-2~ 2021  2021~ 2021~ 2                  1 40 lbs/acre           7
+    ##  8 2021-N-2~ 2021  2021~ 2021~ 4                  1 120 lbs/acre          7
+    ##  9 2021-N-2~ 2021  2021~ 2021~ 5                  1 160 lbs/acre          8
+    ## 10 2021-N-2~ 2021  2021~ 2021~ 1                  1 0 lbs/acre            8
+    ## # ... with 608 more rows, and 9 more variables: standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
-    ## #   diameter <dbl>, volumeEllipsoid <dbl>
+    ## #   diameter <dbl>, volumeEllipsoid <dbl>, diameterRoundDown <fct>,
+    ## #   diameterRoundUp <fct>
 
 ``` r
 # Create subset with only orange pumpkins
@@ -1195,10 +1241,10 @@ ggplot(spacingDataOrange, aes(x = spacingDim, y = weight, fill = spacingDim)) +
 ![](README_files/figure-gfm/exploreSpacingData-4.png)<!-- -->
 
 ``` r
-# Boxplot of weight by spacing area for orange pumpkins
-ggplot(spacingDataOrange, aes(x = spacingArea, y = weight, fill = spacingArea)) + 
+# Boxplot of weight by plant area for orange pumpkins
+ggplot(spacingDataOrange, aes(x = plantArea, y = weight, fill = plantArea)) + 
     geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none") + 
-    labs(x = "Spacing Area (Square Feet)", y = "Weight (Pounds)")
+    labs(x = "Plant Area (Square Feet)", y = "Weight (Pounds)")
 ```
 
 ![](README_files/figure-gfm/exploreSpacingData-5.png)<!-- -->
@@ -1213,10 +1259,10 @@ ggplot(spacingDataOrange, aes(x = spacingDim, y = volumeEllipsoid, fill = spacin
 ![](README_files/figure-gfm/exploreSpacingData-6.png)<!-- -->
 
 ``` r
-# Boxplot of volume by spacing area for orange pumpkins
-ggplot(spacingDataOrange, aes(x = spacingArea, y = volumeEllipsoid, fill = spacingArea)) + 
+# Boxplot of volume by plant area for orange pumpkins
+ggplot(spacingDataOrange, aes(x = plantArea, y = volumeEllipsoid, fill = plantArea)) + 
     geom_boxplot(varwidth = TRUE, alpha = 0.2) + theme(legend.position = "none") + 
-    labs(x = "Spacing Area (Square Feet)", y = "Ellipsoid Volume (Cubic Inches)")
+    labs(x = "Plant Area (Square Feet)", y = "Ellipsoid Volume (Cubic Inches)")
 ```
 
 ![](README_files/figure-gfm/exploreSpacingData-7.png)<!-- -->
@@ -1231,9 +1277,9 @@ ggplot(spacingDataOrange, aes(x = spacingDim, fill = spacingDim)) + geom_bar(sta
 ![](README_files/figure-gfm/exploreSpacingData-8.png)<!-- -->
 
 ``` r
-# Bar chart of count by spacing area for orange pumpkins
-ggplot(spacingDataOrange, aes(x = spacingArea, fill = spacingArea)) + geom_bar(stat = "count") + 
-    theme(legend.position = "none") + labs(x = "Spacing Area (Square Feet)", 
+# Bar chart of count by plant area for orange pumpkins
+ggplot(spacingDataOrange, aes(x = plantArea, fill = plantArea)) + geom_bar(stat = "count") + 
+    theme(legend.position = "none") + labs(x = "Plant Area (Square Feet)", 
     y = "Orange Pumpkin Count")
 ```
 
@@ -1250,11 +1296,11 @@ ggplot(spacingData, aes(x = spacingDim, fill = color)) + geom_bar(stat = "count"
 ![](README_files/figure-gfm/exploreSpacingData-10.png)<!-- -->
 
 ``` r
-# Bar chart of color count by spacing area
-ggplot(spacingData, aes(x = spacingArea, fill = color)) + geom_bar(stat = "count", 
+# Bar chart of color count by plant area
+ggplot(spacingData, aes(x = plantArea, fill = color)) + geom_bar(stat = "count", 
     position = "fill") + scale_fill_manual(values = c("dark green", "dark orange")) + 
     scale_y_continuous(labels = scales::percent_format(scale = 100)) + 
-    labs(x = "Spacing Area (Square Feet)", y = "Pumpkin Count %", fill = "Pumpkin Color")
+    labs(x = "Plant Area (Square Feet)", y = "Pumpkin Count %", fill = "Pumpkin Color")
 ```
 
 ![](README_files/figure-gfm/exploreSpacingData-11.png)<!-- -->
@@ -1372,3 +1418,44 @@ To be conducted…
 # Conclusions
 
 To be conducted…
+
+``` r
+# summarise spacingData
+pumpkinsDiaRoundTable <- spacingData %>% select(plantArea, spacingDim, 
+    betweenRow, inRow, plot, pumpkinID, diameter, diameterRoundUp, volumeEllipsoid, 
+    weight, standCount, standCountIdeal, standCountIdealPct) %>% group_by(plantArea, 
+    spacingDim, betweenRow, inRow, plot, diameterRoundUp) %>% summarise(PumpkinCount = n(), 
+    `Avg Diameter (Inches)` = round(mean(diameter), 1), `Avg Volume (cu. in.)` = round(mean(volumeEllipsoid), 
+        1), `Avg Weight (lbs)` = round(mean(weight), 1), `Stand Count` = mean(standCount), 
+    `Ideal Stand Count` = mean(standCountIdeal), `% of Ideal Stand Count` = percent(mean(standCountIdealPct), 
+        accuracy = 0.1), )
+```
+
+    ## `summarise()` regrouping output by 'plantArea', 'spacingDim', 'betweenRow', 'inRow', 'plot' (override with `.groups` argument)
+
+``` r
+# summarize something to plot
+pumpkinsDiaRoundTablePlot <- pumpkinsDiaRoundTable %>% select(plantArea, 
+    spacingDim, betweenRow, inRow, diameterRoundUp, PumpkinCount) %>% group_by(plantArea, 
+    spacingDim, betweenRow, inRow, diameterRoundUp) %>% summarise(PumpkinAvgCount = mean(PumpkinCount))
+```
+
+    ## Adding missing grouping variables: `plot`
+
+    ## `summarise()` regrouping output by 'plantArea', 'spacingDim', 'betweenRow', 'inRow' (override with `.groups` argument)
+
+``` r
+# make a scatter plot
+ggplot(pumpkinsDiaRoundTablePlot, aes(x = diameterRoundUp, y = PumpkinAvgCount, 
+    color = spacingDim)) + geom_point()
+```
+
+![](README_files/figure-gfm/test-1.png)<!-- -->
+
+``` r
+# make a connected line plot
+ggplot(pumpkinsDiaRoundTablePlot, aes(x = diameterRoundUp, y = PumpkinAvgCount, 
+    group = spacingDim, color = inRow)) + geom_line(size = 3) + geom_point()
+```
+
+![](README_files/figure-gfm/test-2.png)<!-- -->

@@ -1,6 +1,6 @@
 ---
 title: "Project Phases"
-date: "Last Update: 3/10/2022"
+date: "Last Update: 4/7/2022"
 output:
   rmarkdown::github_document:
     toc: false
@@ -17,6 +17,7 @@ library(ggplot2)
 library(writexl)
 library(haven)
 library(lubridate)
+library(scales)
 knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
 ```
 
@@ -99,6 +100,8 @@ The below formatting steps were followed for each of the three worksheets:
 5. Deleted the `Row Distance` and `In Row Distance` columns after concatenation  
 6. Checked `Green Fruit` column E to ensure all values were evenly spaced by ", " ("comma space") for parsing during the import process  
 7. Repeated the above steps 1 - 6 for the other two worksheets  
+
+**Note:** The `Diameter` value for `Plot` 301 `Fruit` 11 in the `Spacing Diameter` worksheet was listed as `17` which looked large upon initial evaluation, compared to others of the similar weight and diameter. Confirmed with client this was an input error due to messy handwriting, and updated to reflect the intended value of `14`.  
 
 Finally, the file was renamed to `2020pumpkinData.xlsx` after formatting for easy future reference.  
 
@@ -214,6 +217,10 @@ The below formatting steps were followed for each of the three worksheets for th
 4. Checked `Nitrogen Rate` column B to ensure all values were evenly spaced for consistent categorical values  
     + Example: Adjusted `lbs/ acre` to `lbs/acre` for consistency  
 5. Repeated the above steps 1 - 4 for the other two leaf composition study worksheets  
+
+**Note:** The `Diameter` value for `Plot` 301 `Orange Fruit` 1 in the `Nitrogen Diameters (inches) O` worksheet was listed as `15.2` which looked large upon initial evaluation, compared to others of the similar weight and diameter. Confirmed with client this was an input error due to messy handwriting, and updated to reflect the intended value of `13.2`.  
+
+**Note:** The `Ideal Stand Count` value for `Plot` 301 in all three `Spacing ...` worksheets was listed as `10`. Updated to reflect the correct ideal stand count value of `20` that was associated with this plot in all three worksheets.  
 
 **Note:** The `Nitrogen Rate` value for `Plot` 302 in the `Leaf Analysis Nitrogen (%)` worksheet was blank. Updated to reflect the value of `200 lbs/acre` that was associated with this plot in the `Leaf Analysis Phosphorus (%)` and `Leaf Analysis Potassium (%)` worksheets.  
 
@@ -511,9 +518,9 @@ leafData <- mutate(leafData,year="2021")
 spacingData <- rbind(spacingData2020,spacingData2021)
 
 # Format variables
-spacingData$plot <- as.factor(spacingData$plot)
+spacingData$plot <- as.factor(paste0(spacingData$year,"-",spacingData$plot))
 spacingData$treatment <- as.factor(spacingData$treatment)
-spacingData$rep <- as.factor(spacingData$rep)
+spacingData$rep <- as.factor(paste0(spacingData$year,"-",spacingData$rep))
 spacingData$pumpkinNum <- as.numeric(spacingData$pumpkinNum)
 spacingData$year <- as.factor(spacingData$year)
 
@@ -534,9 +541,9 @@ spacingData$pumpkinID <- paste0(spacingData$year,"-",
                                 spacingData$color,"-",
                                 spacingData$pumpkinNum)
 
-# Create variable for spacing area and transform spacing variables factors
-spacingData <- mutate(spacingData,spacingArea=sapply(strsplit(as.character(spacingDim),split=" x "),function(x) prod(as.numeric(x))))
-spacingData$spacingArea <- as.factor(spacingData$spacingArea)
+# Create variable for plant area and transform spacing variables factors
+spacingData <- mutate(spacingData,plantArea=sapply(strsplit(as.character(spacingDim),split=" x "),function(x) prod(as.numeric(x))))
+spacingData$plantArea <- as.factor(spacingData$plantArea)
 spacingData$spacingDim <- as.character(spacingData$spacingDim)
 
 # Ensure metrics are all numerical
@@ -551,14 +558,28 @@ spacingData <- mutate(spacingData,standCountIdealPct=standCount/standCountIdeal)
 # spacingData <- mutate(spacingData,volumeSphere=(4/3)*pi*(diameter/2)^3)
 spacingData <- mutate(spacingData,volumeEllipsoid=round((4/3)*pi*(diameter/2)*(diameter/2)*(length/2),1))
 
+# Create rounded variables for diameter, both down and up
+spacingData <- mutate(spacingData,diameterRoundDown=floor(diameter))
+spacingData$diameterRoundDown <- as.factor(spacingData$diameterRoundDown)
+spacingData <- mutate(spacingData,diameterRoundUp=ceiling(diameter))
+spacingData$diameterRoundUp <- as.factor(spacingData$diameterRoundUp)
+
 # Arrange columns for presentation of final table for spacing data
-spacingData <- select(spacingData,c(11,10,1,3,2,8,15,6,4,5,16,14,9,12,13,17))
+spacingData <- select(spacingData,c(11,10,1,3,2,8,15,6,4,5,16,14,9,12,13,17,18,19))
 
 # Split spacingDim for betweenRow and inRow columns
 spacingData <- separate(spacingData,spacingDim,into = c("betweenRow","inRow"),sep=" x ",remove=FALSE)
 spacingData$spacingDim <- as.factor(spacingData$spacingDim)
 spacingData$betweenRow <- as.factor(spacingData$betweenRow)
 spacingData$inRow <- as.factor(spacingData$inRow)
+
+# Create variables for plot area and harvest area (square feet)
+spacingData <- mutate(spacingData,plotArea=ifelse(betweenRow=="10",1600,
+                                                  ifelse(betweenRow=="5",800,NA)))
+spacingData$plotArea <- as.numeric(spacingData$plotArea)
+spacingData <- mutate(spacingData,harvestArea=ifelse(betweenRow=="10",400,
+                                                  ifelse(betweenRow=="5",200,NA)))
+spacingData$harvestArea <- as.numeric(spacingData$harvestArea)
 
 # Provide structure of transformed variables with data preview
 str(spacingData)
@@ -574,13 +595,13 @@ spacingDataOrange <- subset(spacingData,color=="Orange")
 
 ```{r transformNitrogenWeightData, cache=TRUE}
 # Format variables
-nitrogenWeight$plot <- as.factor(nitrogenWeight$plot)
 nitrogenWeight$nitrogenRate <- as.factor(nitrogenWeight$nitrogenRate)
 nitrogenWeight$treatment <- as.factor(nitrogenWeight$treatment)
-nitrogenWeight$rep <- as.factor(nitrogenWeight$rep)
 nitrogenWeight$pumpkinNum <- as.numeric(nitrogenWeight$pumpkinNum)
 nitrogenWeight$color <- as.factor(nitrogenWeight$color)
 nitrogenWeight$year <- as.factor(nitrogenWeight$year)
+nitrogenWeight$plot <- as.factor(paste0(nitrogenWeight$year,"-",nitrogenWeight$plot))
+nitrogenWeight$rep <- as.factor(paste0(nitrogenWeight$year,"-",nitrogenWeight$rep))
 
 # Ensure metrics are all numerical
 nitrogenWeight$weight <- as.numeric(nitrogenWeight$weight)
@@ -600,13 +621,13 @@ nitrogenWeight
 
 ```{r transformNitrogenLengthData, cache=TRUE}
 # Format variables
-nitrogenLength$plot <- as.factor(nitrogenLength$plot)
 nitrogenLength$nitrogenRate <- as.factor(nitrogenLength$nitrogenRate)
 nitrogenLength$treatment <- as.factor(nitrogenLength$treatment)
-nitrogenLength$rep <- as.factor(nitrogenLength$rep)
 nitrogenLength$pumpkinNum <- as.numeric(nitrogenLength$pumpkinNum)
 nitrogenLength$color <- as.factor(nitrogenLength$color)
 nitrogenLength$year <- as.factor(nitrogenLength$year)
+nitrogenLength$plot <- as.factor(paste0(nitrogenLength$year,"-",nitrogenLength$plot))
+nitrogenLength$rep <- as.factor(paste0(nitrogenLength$year,"-",nitrogenLength$rep))
 
 # Ensure metrics are all numerical
 nitrogenLength$length <- as.numeric(nitrogenLength$length)
@@ -626,13 +647,13 @@ nitrogenLength
 
 ```{r transformNitrogenDiameterData, cache=TRUE}
 # Format variables
-nitrogenDiameter$plot <- as.factor(nitrogenDiameter$plot)
 nitrogenDiameter$nitrogenRate <- as.factor(nitrogenDiameter$nitrogenRate)
 nitrogenDiameter$treatment <- as.factor(nitrogenDiameter$treatment)
-nitrogenDiameter$rep <- as.factor(nitrogenDiameter$rep)
 nitrogenDiameter$pumpkinNum <- as.numeric(nitrogenDiameter$pumpkinNum)
 nitrogenDiameter$color <- as.factor(nitrogenDiameter$color)
 nitrogenDiameter$year <- as.factor(nitrogenDiameter$year)
+nitrogenDiameter$plot <- as.factor(paste0(nitrogenDiameter$year,"-",nitrogenDiameter$plot))
+nitrogenDiameter$rep <- as.factor(paste0(nitrogenDiameter$year,"-",nitrogenDiameter$rep))
 
 # Ensure metrics are all numerical
 nitrogenDiameter$diameter <- as.numeric(nitrogenDiameter$diameter)
@@ -659,6 +680,12 @@ nitrogenData <- left_join(nitrogenData,nitrogenDiameter)
 # Create variable for volume
 # nitrogenData <- mutate(nitrogenData,volumeSphere=(4/3)*pi*(diameter/2)^3)
 nitrogenData <- mutate(nitrogenData,volumeEllipsoid=round((4/3)*pi*(diameter/2)*(diameter/2)*(length/2),1))
+
+# Create rounded variables for diameter, both down and up
+nitrogenData <- mutate(nitrogenData,diameterRoundDown=floor(diameter))
+nitrogenData$diameterRoundDown <- as.factor(nitrogenData$diameterRoundDown)
+nitrogenData <- mutate(nitrogenData,diameterRoundUp=ceiling(diameter))
+nitrogenData$diameterRoundUp <- as.factor(nitrogenData$diameterRoundUp)
 
 # Provide structure of transformed variables with data preview
 str(nitrogenData)
@@ -817,11 +844,11 @@ ggplot(spacingDataOrange, aes(x=spacingDim,y=weight,fill=spacingDim)) +
    labs(x="Spacing Dimension (Feet)",
         y="Weight (Pounds)")
 
-# Boxplot of weight by spacing area for orange pumpkins
-ggplot(spacingDataOrange, aes(x=spacingArea,y=weight,fill=spacingArea)) +
+# Boxplot of weight by plant area for orange pumpkins
+ggplot(spacingDataOrange, aes(x=plantArea,y=weight,fill=plantArea)) +
    geom_boxplot(varwidth = TRUE, alpha=0.2) +
    theme(legend.position="none") +
-   labs(x="Spacing Area (Square Feet)",
+   labs(x="Plant Area (Square Feet)",
         y="Weight (Pounds)")
 
 # Boxplot of volume by spacing dimension for orange pumpkins
@@ -831,11 +858,11 @@ ggplot(spacingDataOrange, aes(x=spacingDim,y=volumeEllipsoid,fill=spacingDim)) +
    labs(x="Spacing Dimension (Feet)",
         y="Ellipsoid Volume (Cubic Inches)")
 
-# Boxplot of volume by spacing area for orange pumpkins
-ggplot(spacingDataOrange, aes(x=spacingArea,y=volumeEllipsoid,fill=spacingArea)) +
+# Boxplot of volume by plant area for orange pumpkins
+ggplot(spacingDataOrange, aes(x=plantArea,y=volumeEllipsoid,fill=plantArea)) +
   geom_boxplot(varwidth = TRUE, alpha=0.2) +
   theme(legend.position="none") +
-  labs(x="Spacing Area (Square Feet)",
+  labs(x="Plant Area (Square Feet)",
        y="Ellipsoid Volume (Cubic Inches)")
 
 # Bar chart of count by spacing dimension for orange pumpkins
@@ -845,11 +872,11 @@ ggplot(spacingDataOrange, aes(x=spacingDim,fill=spacingDim)) +
   labs(x="Spacing Dimension (Feet)",
        y="Orange Pumpkin Count")
 
-# Bar chart of count by spacing area for orange pumpkins
-ggplot(spacingDataOrange, aes(x=spacingArea,fill=spacingArea)) +
+# Bar chart of count by plant area for orange pumpkins
+ggplot(spacingDataOrange, aes(x=plantArea,fill=plantArea)) +
   geom_bar(stat = "count") +
   theme(legend.position="none") +
-  labs(x="Spacing Area (Square Feet)",
+  labs(x="Plant Area (Square Feet)",
        y="Orange Pumpkin Count")
 
 # Bar chart of color count by spacing dimension
@@ -862,13 +889,13 @@ ggplot(spacingData, aes(x=spacingDim,fill=color)) +
        y="Pumpkin Count %",
        fill="Pumpkin Color")
 
-# Bar chart of color count by spacing area
-ggplot(spacingData, aes(x=spacingArea,fill=color)) +
+# Bar chart of color count by plant area
+ggplot(spacingData, aes(x=plantArea,fill=color)) +
   geom_bar(stat = "count",
            position = "fill") +
   scale_fill_manual(values = c("dark green", "dark orange")) +
   scale_y_continuous(labels = scales::percent_format(scale = 100)) +
-  labs(x="Spacing Area (Square Feet)",
+  labs(x="Plant Area (Square Feet)",
        y="Pumpkin Count %",
        fill="Pumpkin Color")
 ```
@@ -990,4 +1017,28 @@ To be conducted...
 # Conclusions  
 
 To be conducted...  
+
+```{r test}
+# summarise spacingData
+pumpkinsDiaRoundTable <- spacingData %>%
+  select(plantArea,spacingDim,betweenRow,inRow,plot,pumpkinID,diameter,diameterRoundUp,volumeEllipsoid,weight,standCount,standCountIdeal,standCountIdealPct) %>%
+            group_by(plantArea,spacingDim,betweenRow,inRow,plot,diameterRoundUp) %>% summarise("PumpkinCount"=n(),
+                                                    "Avg Diameter (Inches)"=round(mean(diameter),1),
+                                                    "Avg Volume (cu. in.)"=round(mean(volumeEllipsoid),1),
+                                                    "Avg Weight (lbs)"=round(mean(weight),1),
+                                                    "Stand Count"=mean(standCount),
+                                                    "Ideal Stand Count"=mean(standCountIdeal),
+                                                    "% of Ideal Stand Count"=percent(mean(standCountIdealPct),accuracy=0.1),
+                                                    )
+# summarize something to plot
+pumpkinsDiaRoundTablePlot <- pumpkinsDiaRoundTable %>%
+  select(plantArea,spacingDim,betweenRow,inRow,diameterRoundUp,PumpkinCount) %>%
+            group_by(plantArea,spacingDim,betweenRow,inRow,diameterRoundUp) %>% summarise("PumpkinAvgCount"=mean(PumpkinCount))
+# make a scatter plot
+ggplot(pumpkinsDiaRoundTablePlot,aes(x=diameterRoundUp,y=PumpkinAvgCount,color=spacingDim)) + geom_point()
+# make a connected line plot
+ggplot(pumpkinsDiaRoundTablePlot,aes(x=diameterRoundUp,y=PumpkinAvgCount,group=spacingDim,color=inRow)) + geom_line(size=3) + geom_point()
+
+```
+
 
