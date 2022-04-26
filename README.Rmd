@@ -1,6 +1,6 @@
 ---
 title: "Project Phases"
-date: "Last Update: 4/7/2022"
+date: "Last Update: 4/25/2022"
 output:
   rmarkdown::github_document:
     toc: false
@@ -54,7 +54,6 @@ This project will be expected to deliver:
     + *Higher leaf nitrogen composition will indicate higher yields.*  
 2. Documentation of how the analysis was conducted  
 3. Clean data files and visuals  
-4. Pumpkin bin optimization analysis  
 
 Following the below delivery timeline for each phase of work:  
 
@@ -535,8 +534,7 @@ for (i in 1:nrow(spacingData)) {
 spacingData$color <- as.factor(spacingData$color)
 
 # Update unique pumpkin ID to include color (to match nitrogen data format)
-spacingData$pumpkinID <- paste0(spacingData$year,"-",
-                                "S","-",
+spacingData$pumpkinID <- paste0("S","-",
                                 spacingData$plot,"-",
                                 spacingData$color,"-",
                                 spacingData$pumpkinNum)
@@ -990,6 +988,8 @@ ggplot(data=leafData,aes(x=date,y=potassiumPct,color=treatment))+
 
 # Analysis  
 
+The analysis portion is covered in the corresponding [R Shiny App](https://bsugg.shinyapps.io/ShinyPumpkinProject/) for this project under the *Analysis* menu item. Other graphs and visuals are also available in the *Data Exploration* section of this app.  
+
 ```{r spacingANOVA, echo=FALSE, results=FALSE}
 # One way ANOVA for spacing study
 spacingOWA <- aov(volumeEllipsoid ~ spacingDim,data=spacingData)
@@ -1012,13 +1012,19 @@ tukeyN <- TukeyHSD(nitrogenOWA)
 tukeyN
 ```
 
-To be conducted...  
-
 # Conclusions  
 
-To be conducted...  
+From the comparison of means using Tukey-Kramer HSD and the Student’s t-test, we found when applying different plant spacing areas and between-row distances on pumpkin plants, the resulting volume and quantity of harvested pumpkins would be significantly different, although the quantity didn’t differ  much between spacing areas of 30 sqft and 40 sqft.  
 
-```{r test}
+In terms of our model assumptions, the provided qq-plots showed the entire population follows an approximately normal distribution. The equal variance assumption was not violated since the ratios of the largest variance to the smallest variance were all less than 3. The only exception occurred when analyzing the quantity where the treatment combination of spacing area 10 sqft and between-row distance 5 ft had a variance that was much larger than other groups. This single large variance might be caused by some unknown factors in the experiment that should be investigated further.  
+
+The variances of all the other groups were similar, so we accepted the model assumptions and proceeded with our analysis using a two-way ANOVA with interaction. The analysis indicated the interaction effect was not a significant factor on the means of pumpkin volume or quantity. After finding the best polynomial model, we discovered both models were similar in terms, but with different corresponding coefficient values.
+
+Both of the fitted models had a large F ratio which means the variation among group means is pretty large, as seen in the graphs. The low adjusted R-square value in the volume model indicated that the independent variables do not explain much of the variation in volume, even though there is a significant effect from the two factors. We suspect there may exist some lurking variables from the research study influencing our model fit, which can be investigated further with our client.  
+
+When the plant spacing area increases, pumpkin quantity decreases and pumpkin volume increases. If we choose a between-row distance of 5 ft instead of 10 ft, the volume and quantity of pumpkins would increase in size and amount across the four different plant spacing areas. Overall, we conclude both the plant spacing area and between-row distance are statistically significant in controlling the volume and quantity of pumpkins. Plants grown closer together will produce more pumpkins and have a higher overall yield, confirming our client’s hypothesis.  
+
+```{r test, echo=FALSE,results="hide",eval=FALSE}
 # summarise spacingData
 pumpkinsDiaRoundTable <- spacingData %>%
   select(plantArea,spacingDim,betweenRow,inRow,plot,pumpkinID,diameter,diameterRoundUp,volumeEllipsoid,weight,standCount,standCountIdeal,standCountIdealPct) %>%
@@ -1034,11 +1040,136 @@ pumpkinsDiaRoundTable <- spacingData %>%
 pumpkinsDiaRoundTablePlot <- pumpkinsDiaRoundTable %>%
   select(plantArea,spacingDim,betweenRow,inRow,diameterRoundUp,PumpkinCount) %>%
             group_by(plantArea,spacingDim,betweenRow,inRow,diameterRoundUp) %>% summarise("PumpkinAvgCount"=mean(PumpkinCount))
-# make a scatter plot
-ggplot(pumpkinsDiaRoundTablePlot,aes(x=diameterRoundUp,y=PumpkinAvgCount,color=spacingDim)) + geom_point()
-# make a connected line plot
-ggplot(pumpkinsDiaRoundTablePlot,aes(x=diameterRoundUp,y=PumpkinAvgCount,group=spacingDim,color=inRow)) + geom_line(size=3) + geom_point()
+
+modelData <- spacingData %>%
+  select(plot,plantArea,betweenRow,inRow,standCount,pumpkinID) %>%
+            group_by(plot,plantArea,betweenRow,inRow) %>% summarise("standCount"=mean(standCount),
+                                                                    "pumpkinCount"=n())
+
+# modelData$plantArea <- as.numeric(modelData$plantArea)
+# modelData$betweenRow <- as.numeric(modelData$betweenRow)
+# modelData$inRow <- as.numeric(modelData$inRow)
+
+numbers10 <- spacingData %>% filter(plantArea=="10")
+numbers20 <- spacingData %>% filter(plantArea=="20")
+numbers30 <- spacingData %>% filter(plantArea=="30")
+numbers40 <- spacingData %>% filter(plantArea=="40")
+sum10 <- summary(numbers10)
+sum20 <- summary(numbers20)
+sum30 <- summary(numbers30)
+sum40 <- summary(numbers40)
+
+# Make an average volume chart per plant spacing area
+plotSpace <- as_tibble(cbind(plantArea=c("10","20","30","40"),avgVol=c(756,993,1143.7,1216.7)))
+plotSpace$avgVol <- as.numeric(plotSpace$avgVol)
+ggplot(plotSpace,aes(x=plantArea,y=avgVol,group=plantArea,color=plantArea)) +
+  geom_line() +
+  geom_point(size=8) +
+  theme(legend.position = "none") +
+  labs(x="Plant Spacing Area (Square Feet)",
+       y="Average Pumpkin Volume (Cubic Inches)")
+
+# Make an average quantity chart per plant spacing area
+plotQty <- as_tibble(cbind(plantArea=c("10","20","30","40"),avgVol=c(45.85714,30.85714,23.57143,22.64286)))
+plotQty$avgVol <- as.numeric(plotQty$avgVol)
+ggplot(plotQty,aes(x=plantArea,y=avgVol,group=plantArea,color=plantArea)) +
+  geom_line() +
+  geom_point(size=8) +
+  theme(legend.position = "none") +
+  labs(x="Plant Spacing Area (Square Feet)",
+       y="Average Pumpkin Quantity per Scaled Plot")
+
+plotSpace$avgVol*plotQty$avgVol
+
+# Make a gross volume chart per plant spacing area
+plotGross <- as_tibble(cbind(plantArea=c("10","20","30","40"),grossVol=c(34668,30641.14,26958.64,27549.57)))
+plotGross$grossVol <- as.numeric(plotGross$grossVol)
+ggplot(plotGross,aes(x=plantArea,y=grossVol,fill=plantArea)) +
+  geom_col() +
+  theme(legend.position = "none") +
+  labs(x="Plant Spacing Area (Square Feet)",
+       y="Total Gross Volume per Scaled Plot (Cubic Inches)")
 
 ```
 
+```{r significanceCheck, echo=FALSE,results="hide",eval=FALSE}
+# 1. A two-way ANOVA without any interaction or blocking variable (a.k.a an additive two-way ANOVA).
+two.way <- aov(volumeEllipsoid ~ plantArea + betweenRow, data = spacingData)
+summary(two.way)
+# 2.A two-way ANOVA with interaction but with no blocking variable.
+interaction <- aov(volumeEllipsoid ~ plantArea * betweenRow, data = spacingData)
+summary(interaction)
+intSum <- summary(interaction)
+intCoef <- as.tibble(cbind(names(interaction$coefficients),round(interaction$coefficients,2)))
+names(intCoef) <- c("Term","Coefficient")
+
+# 3. A two-way ANOVA with interaction and with the blocking variable.
+blocking <- aov(volumeEllipsoid ~ plantArea * betweenRow + betweenRow, data = spacingData)
+summary(blocking)
+
+# Return the Tukey results to check significance between groups
+TukeyHSD(two.way)
+TukeyHSD(interaction)
+TukeyHSD(blocking)
+
+# Interaction plot as coded by Dr Harris
+with(spacingData,(interaction.plot(plantArea,betweenRow,volumeEllipsoid)))
+
+# Dr Harris thinks the two-way anova with interaction makes the most sense, except at 20 sq ft area where plot intersects
+
+```
+
+```{r P2a, echo=FALSE,results="hide",eval=FALSE}
+library(ISLR2)
+library(caret)
+library(rsample)
+library(faraway)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Create x and y values for a true linear relationship
+modelData <- spacingData #%>% filter(diameterRoundUp==12)
+#modelData$betweenRow <- as.numeric(modelData$betweenRow)
+#modelData$plantArea <- as.numeric(modelData$plantArea)
+modelData <- modelData #%>% mutate("density"=weight/volumeEllipsoid)
+
+# Create training and testing sets
+modelIndex <- initial_split(modelData)
+trainData <- training(modelIndex)
+testData <- testing(modelIndex)
+
+# Fit linear model and cubic models for comparison on training set
+linearMod <- lm(volumeEllipsoid ~ betweenRow + plantArea + diameterRoundDown,data=trainData)
+#polyMod <- lm(volumeEllipsoid ~ betweenRow + diameterRoundDown + plantArea + I(plantArea^2),data=trainData)
+
+# Print summaries
+sumary(linearMod)
+#sumary(polyMod)
+
+# Calculate RSE
+rseCalc <- testData
+rseCalc <- cbind(rseCalc,predict(linearMod,testData))
+rseCalc <- rseCalc %>% mutate(error=rseCalc[23]-volumeEllipsoid)
+
+library(leaps)
+
+# Perform forward stepwise selection on the training set
+regfit.fwd <- regsubsets(volumeEllipsoid ~ .,data=trainData,
+                         nvmax=22,
+                         method="forward")
+mod_summary <- summary(regfit.fwd)
+# Collect metrics to choose best model
+metrics <- data.frame(aic=mod_summary$cp,
+                      bic=mod_summary$bic,
+                      adjR2=mod_summary$adjr2)
+metrics
+# Plot metrics for model size selection
+par(mfrow=c(1,3))
+plot(metrics$aic,xlab="Size",ylab="AIC")
+plot(metrics$bic,xlab="Size",ylab="BIC")
+plot(metrics$adjR2,xlab="Size",ylab="Adjusted R2")
+# Display subset of the predictors from best model selection
+round(coef(regfit.fwd,6),2)
+```
 

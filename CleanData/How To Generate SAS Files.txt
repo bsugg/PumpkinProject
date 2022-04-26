@@ -1,0 +1,4 @@
+The SAS clean data files are generated manually using the SAS file in the PumpkinProject directory:
+importPumpkinToSAS
+
+It grabs the clean Excel files and outputs .sas7bdat 

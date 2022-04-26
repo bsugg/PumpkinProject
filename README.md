@@ -1,6 +1,6 @@
 Project Phases
 ================
-Last Update: 4/7/2022
+Last Update: 4/25/2022
 
 <img src="./Images/deliveryPhases.JPG" width="130%" />
 
@@ -65,8 +65,7 @@ This project will be expected to deliver:
       - *Higher leaf nitrogen composition will indicate higher
         yields.*  
 2.  Documentation of how the analysis was conducted  
-3.  Clean data files and visuals  
-4.  Pumpkin bin optimization analysis
+3.  Clean data files and visuals
 
 Following the below delivery timeline for each phase of work:
 
@@ -727,8 +726,8 @@ spacingData$color <- as.factor(spacingData$color)
 
 # Update unique pumpkin ID to include color (to match nitrogen data
 # format)
-spacingData$pumpkinID <- paste0(spacingData$year, "-", "S", "-", spacingData$plot, 
-    "-", spacingData$color, "-", spacingData$pumpkinNum)
+spacingData$pumpkinID <- paste0("S", "-", spacingData$plot, "-", spacingData$color, 
+    "-", spacingData$pumpkinNum)
 
 # Create variable for plant area and transform spacing variables
 # factors
@@ -780,7 +779,7 @@ str(spacingData)
 ```
 
     ## tibble [1,259 x 22] (S3: tbl_df/tbl/data.frame)
-    ##  $ pumpkinID         : chr [1:1259] "2020-S-2020-101-Green-1" "2020-S-2020-102-Green-1" "2020-S-2020-103-Orange-1" "2020-S-2020-104-Green-1" ...
+    ##  $ pumpkinID         : chr [1:1259] "S-2020-101-Green-1" "S-2020-102-Green-1" "S-2020-103-Orange-1" "S-2020-104-Green-1" ...
     ##  $ year              : Factor w/ 2 levels "2020","2021": 1 1 1 1 1 1 1 1 1 1 ...
     ##  $ plot              : Factor w/ 56 levels "2020-101","2020-102",..: 1 2 3 4 5 6 7 8 9 10 ...
     ##  $ rep               : Factor w/ 7 levels "2020-1","2020-2",..: 1 1 1 1 1 1 1 1 2 2 ...
@@ -810,16 +809,16 @@ spacingData
     ## # A tibble: 1,259 x 22
     ##    pumpkinID year  plot  rep   treatment pumpkinNum plantArea spacingDim
     ##    <chr>     <fct> <fct> <fct> <fct>          <dbl> <fct>     <fct>     
-    ##  1 2020-S-2~ 2020  2020~ 2020~ 1                  1 10        10 x 1    
-    ##  2 2020-S-2~ 2020  2020~ 2020~ 2                  1 20        10 x 2    
-    ##  3 2020-S-2~ 2020  2020~ 2020~ 3                  1 30        10 x 3    
-    ##  4 2020-S-2~ 2020  2020~ 2020~ 4                  1 40        10 x 4    
-    ##  5 2020-S-2~ 2020  2020~ 2020~ 5                  1 10        5 x 2     
-    ##  6 2020-S-2~ 2020  2020~ 2020~ 6                  1 20        5 x 4     
-    ##  7 2020-S-2~ 2020  2020~ 2020~ 7                  1 30        5 x 6     
-    ##  8 2020-S-2~ 2020  2020~ 2020~ 8                  1 40        5 x 8     
-    ##  9 2020-S-2~ 2020  2020~ 2020~ 3                  1 30        10 x 3    
-    ## 10 2020-S-2~ 2020  2020~ 2020~ 1                  1 10        10 x 1    
+    ##  1 S-2020-1~ 2020  2020~ 2020~ 1                  1 10        10 x 1    
+    ##  2 S-2020-1~ 2020  2020~ 2020~ 2                  1 20        10 x 2    
+    ##  3 S-2020-1~ 2020  2020~ 2020~ 3                  1 30        10 x 3    
+    ##  4 S-2020-1~ 2020  2020~ 2020~ 4                  1 40        10 x 4    
+    ##  5 S-2020-1~ 2020  2020~ 2020~ 5                  1 10        5 x 2     
+    ##  6 S-2020-1~ 2020  2020~ 2020~ 6                  1 20        5 x 4     
+    ##  7 S-2020-1~ 2020  2020~ 2020~ 7                  1 30        5 x 6     
+    ##  8 S-2020-1~ 2020  2020~ 2020~ 8                  1 40        5 x 8     
+    ##  9 S-2020-2~ 2020  2020~ 2020~ 3                  1 30        10 x 3    
+    ## 10 S-2020-2~ 2020  2020~ 2020~ 1                  1 10        10 x 1    
     ## # ... with 1,249 more rows, and 14 more variables: betweenRow <fct>,
     ## #   inRow <fct>, standCount <dbl>, standCountIdeal <dbl>,
     ## #   standCountIdealPct <dbl>, color <fct>, weight <dbl>, length <dbl>,
@@ -1409,53 +1408,55 @@ ggplot(data = leafData, aes(x = date, y = potassiumPct, color = treatment)) +
 
 # Analysis
 
+The analysis portion is covered in the corresponding [R Shiny
+App](https://bsugg.shinyapps.io/ShinyPumpkinProject/) for this project
+under the *Analysis* menu item. Other graphs and visuals are also
+available in the *Data Exploration* section of this app.
+
 ![](README_files/figure-gfm/spacingANOVA-1.png)<!-- -->![](README_files/figure-gfm/spacingANOVA-2.png)<!-- -->![](README_files/figure-gfm/spacingANOVA-3.png)<!-- -->![](README_files/figure-gfm/spacingANOVA-4.png)<!-- -->
 
 ![](README_files/figure-gfm/nitrogenANOVA-1.png)<!-- -->![](README_files/figure-gfm/nitrogenANOVA-2.png)<!-- -->![](README_files/figure-gfm/nitrogenANOVA-3.png)<!-- -->![](README_files/figure-gfm/nitrogenANOVA-4.png)<!-- -->
 
-To be conducted…
-
 # Conclusions
 
-To be conducted…
+From the comparison of means using Tukey-Kramer HSD and the Student’s
+t-test, we found when applying different plant spacing areas and
+between-row distances on pumpkin plants, the resulting volume and
+quantity of harvested pumpkins would be significantly different,
+although the quantity didn’t differ much between spacing areas of 30
+sqft and 40 sqft.
 
-``` r
-# summarise spacingData
-pumpkinsDiaRoundTable <- spacingData %>% select(plantArea, spacingDim, 
-    betweenRow, inRow, plot, pumpkinID, diameter, diameterRoundUp, volumeEllipsoid, 
-    weight, standCount, standCountIdeal, standCountIdealPct) %>% group_by(plantArea, 
-    spacingDim, betweenRow, inRow, plot, diameterRoundUp) %>% summarise(PumpkinCount = n(), 
-    `Avg Diameter (Inches)` = round(mean(diameter), 1), `Avg Volume (cu. in.)` = round(mean(volumeEllipsoid), 
-        1), `Avg Weight (lbs)` = round(mean(weight), 1), `Stand Count` = mean(standCount), 
-    `Ideal Stand Count` = mean(standCountIdeal), `% of Ideal Stand Count` = percent(mean(standCountIdealPct), 
-        accuracy = 0.1), )
-```
+In terms of our model assumptions, the provided qq-plots showed the
+entire population follows an approximately normal distribution. The
+equal variance assumption was not violated since the ratios of the
+largest variance to the smallest variance were all less than 3. The only
+exception occurred when analyzing the quantity where the treatment
+combination of spacing area 10 sqft and between-row distance 5 ft had a
+variance that was much larger than other groups. This single large
+variance might be caused by some unknown factors in the experiment that
+should be investigated further.
 
-    ## `summarise()` regrouping output by 'plantArea', 'spacingDim', 'betweenRow', 'inRow', 'plot' (override with `.groups` argument)
+The variances of all the other groups were similar, so we accepted the
+model assumptions and proceeded with our analysis using a two-way ANOVA
+with interaction. The analysis indicated the interaction effect was not
+a significant factor on the means of pumpkin volume or quantity. After
+finding the best polynomial model, we discovered both models were
+similar in terms, but with different corresponding coefficient values.
 
-``` r
-# summarize something to plot
-pumpkinsDiaRoundTablePlot <- pumpkinsDiaRoundTable %>% select(plantArea, 
-    spacingDim, betweenRow, inRow, diameterRoundUp, PumpkinCount) %>% group_by(plantArea, 
-    spacingDim, betweenRow, inRow, diameterRoundUp) %>% summarise(PumpkinAvgCount = mean(PumpkinCount))
-```
+Both of the fitted models had a large F ratio which means the variation
+among group means is pretty large, as seen in the graphs. The low
+adjusted R-square value in the volume model indicated that the
+independent variables do not explain much of the variation in volume,
+even though there is a significant effect from the two factors. We
+suspect there may exist some lurking variables from the research study
+influencing our model fit, which can be investigated further with our
+client.
 
-    ## Adding missing grouping variables: `plot`
-
-    ## `summarise()` regrouping output by 'plantArea', 'spacingDim', 'betweenRow', 'inRow' (override with `.groups` argument)
-
-``` r
-# make a scatter plot
-ggplot(pumpkinsDiaRoundTablePlot, aes(x = diameterRoundUp, y = PumpkinAvgCount, 
-    color = spacingDim)) + geom_point()
-```
-
-![](README_files/figure-gfm/test-1.png)<!-- -->
-
-``` r
-# make a connected line plot
-ggplot(pumpkinsDiaRoundTablePlot, aes(x = diameterRoundUp, y = PumpkinAvgCount, 
-    group = spacingDim, color = inRow)) + geom_line(size = 3) + geom_point()
-```
-
-![](README_files/figure-gfm/test-2.png)<!-- -->
+When the plant spacing area increases, pumpkin quantity decreases and
+pumpkin volume increases. If we choose a between-row distance of 5 ft
+instead of 10 ft, the volume and quantity of pumpkins would increase in
+size and amount across the four different plant spacing areas. Overall,
+we conclude both the plant spacing area and between-row distance are
+statistically significant in controlling the volume and quantity of
+pumpkins. Plants grown closer together will produce more pumpkins and
+have a higher overall yield, confirming our client’s hypothesis.
