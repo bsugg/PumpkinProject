@@ -18,6 +18,7 @@ library(data.table)
 library(autoplotly)
 library(kableExtra)
 library(scales)
+library(mathjaxr)
 
 # Call data generated from save function within the "README.RMD" file
 load("pumpkinData.RData")
@@ -30,6 +31,8 @@ $('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
 "
 
 function(input, output, session) {
+    
+    ###################### GENERATE DYNAMIC MENU DEPENDING ON STUDY SELECTION #####################################
     
     # Whenever input$studySelection changes through user input then the output$menu adapts
     observeEvent(input$studySelection,{
@@ -54,7 +57,7 @@ function(input, output, session) {
                              menuSubItem("Treatments",tabName = "infoSpaceTreat")
                              ),
                     menuItem("Data Exploration", tabName = "exploreSpace", icon = icon("binoculars"),
-                             menuSubItem("Charts for Quantity",tabName = "exploreSpaceBasic"),
+                             menuSubItem("Charts for Quantity",tabName = "exploreSpaceQuantity"),
                              menuSubItem("Charts for Size Metrics",tabName = "exploreSpaceMetrics")
                              ),
                     menuItem("Analysis", tabName = "analysisSpace", icon = icon("gears")),
@@ -134,7 +137,7 @@ function(input, output, session) {
         }
     })
     
-    ###################### REACTIVE ELEMENTS #####################################
+    ###################### REACTIVE ELEMENTS FOR MAIN DATA SET #####################################
     
     #####
     ##### STUDY SELECTION
@@ -191,15 +194,7 @@ function(input, output, session) {
         colorFinder()
     })
     
-    ###################### RENDER SPACING OUTPUT ################################################
-    
-    #####
-    ##### UI ACTIONS
-    #####
-    
-    ###
-    ### SIDEBAR
-    ###
+    ###################### RENDER SPACING OUTPUT #############################################################################
     
     #####
     ##### INFORMATION - SPACING
@@ -212,28 +207,25 @@ function(input, output, session) {
                      tags$br(),
                      tags$i("Pumpkins grown closer together will have a higher overall yield.")
                  ),
-                 tags$b("Background:"),
-                 tags$br(),
+                 tags$h4(tags$b("Background")),
                  HTML(paste("Pumpkins are an emerging specialty crop in North Carolina. In 2019 the state produced 713,000 cwt of pumpkins on 3,100 acres, ranking 6th in the United States where overall national production is steadily increasing ")),
                  tags$a(href="https://usda.library.cornell.edu/concern/publications/02870v86p?locale=en","(USDA Feb 16, 2022)",target="_blank"),
                  HTML(paste(". With the rise in production there is an increasing need for providing clear guidelines to North Carolina farmers on how plant density impacts overall yield.")),
                  tags$br(),
-                 tags$br(),
-                 tags$b("Why is plant density important?"),
+                 tags$h4(tags$b("Why is plant density important?")),
                  tags$ul(
                           tags$li("As plant density increases, yields will generally increase"), 
                           tags$ul(tags$li("Decrease vegetative growth, increase reproductive growth")), 
                           tags$li("Increased plant density aids in weed maintenance"),
                           tags$li("Fuller canopies protect fruit from sun damage")
                  ),
-                 tags$b("Objectives of Study:"),
+                 tags$h4(tags$b("Objectives of Study")),
                  tags$ul(
                      tags$li("Understand the impact of spacing on pumpkin production and fruit size"), 
                      tags$li("Find the pumpkin spacing which produces the highest yield"),
                      tags$li("Compare 10 ft and 5 ft between-row spacing")
                  ),
-                 tags$b("Methods:"),
-                 tags$br(),
+                 tags$h4(tags$b("Methods")),
                  HTML(paste("The Spacing Study was planted for two seasons in 2020 and 2021 at the NC State Extension Upper Mountain Research Station under the care of NC Extension Agents. Crops were planted in June and harvested in September during both years after a 12 week growing period.")),
                  tags$ul(
                      tags$li("Four different plant areas were studied, each with a corresponding 10 ft and 5 ft between-row spacing distance"), 
@@ -243,6 +235,64 @@ function(input, output, session) {
                  ),
         )
     })
+    
+    output$infoSpaceStudyGloss <- renderUI({
+        tags$div(tags$br(),
+                 tags$blockquote(
+                     tags$b("Glossary of Terms"),
+                     tags$br(),
+                     tags$i("Defining variables in the plant spacing study data set...")
+                 ),
+                 HTML(paste("There are a total of ",ncol(spacingData)," variables and ",format(round(as.numeric(nrow(spacingData)),1),big.mark=",")," observations from the plant spacing study feeding this application. All variables, their descriptions, and unit of measurement are listed below!")),
+                 tags$br(),
+                 tags$h4(tags$b("Response Variables")),
+                 tags$ul(
+                     tags$li(tags$code("color"),tags$b(" - Pumpkin Color: "),"Listed as being either orange or green, as noted at time of harvest."),
+                     tags$li(tags$code("diameter"),tags$b(" - Pumpkin Diameter ",tags$i("(inches)"),": "),"The linear distance of the width of a pumpkin as measured at time of harvest."),
+                     tags$li(tags$code("diameterRoundDown"),tags$b(" - Pumpkin Diameter Rounded Down ",tags$i("(inches)"),": "),"The pumpkin diameter rounded down to the nearest whole number. ",tags$i("This pumpkin is at least x inches in diameter.")),
+                     tags$li(tags$code("diameterRoundUp"),tags$b(" - Pumpkin Diameter Rounded Down ",tags$i("(inches)"),": "),"The pumpkin diameter rounded up to the nearest whole number. ",tags$i("This pumpkin is at most x inches in diameter.")),
+                     tags$li(tags$code("length"),tags$b(" - Pumpkin Length ",tags$i("(inches)"),": "),"The linear distance of the height of a pumpkin as measured at time of harvest, from the bottom of the fruit to the base of the stem."),
+                     tags$li(tags$code("volumeEllipsoid"),tags$b(" - Pumpkin Volume ",tags$i("(cubic inches)"),": "),"The calculated volume using the formula for volume of an ellipsoid."),
+                     tags$li(tags$code("weight"),tags$b(" - Pumpkin Weight ",tags$i("(lbs)"),": "),"The weight as measured at time of harvest.")
+                 ),
+                 tags$h4(tags$b("Predictor Variables")),
+                 tags$ul(
+                     tags$li(tags$code("betweenRow"),tags$b(" - Between Row Distance ",tags$i("(feet)"),": "),"The distance between rows."),
+                     tags$li(tags$code("harvestArea"),tags$b(" - Harvest Area ",tags$i("(square feet)"),": "),"The inner area of each plot, marked by ribbon, where all pumpkins within the marked off area are sampled."),
+                     tags$ul(tags$li("Between Row Distance of 10 ft = 20 ft across middle two rows x inner 20 ft of row length = Harvest Area of 400 ft",tags$sup(2)),
+                             tags$li("Between Row Distance of 5 ft = 10 ft across middle two rows x inner 20 ft of row length = Harvest Area of 200 ft",tags$sup(2))
+                             ),
+                     tags$li(tags$code("inRow"),tags$b(" - In Row Distance ",tags$i("(feet)"),": "),"The distance between plants on the same row."),
+                     tags$li(tags$code("plantArea"),tags$b(" - Plant Spacing Area ",tags$i("(square feet)"),": "),"The amount of allocated space per plant, either 10 ft", tags$sup(2),", 20 ft", tags$sup(2),", 30 ft", tags$sup(2),", or 40 ft", tags$sup(2)," in size."),
+                     tags$li(tags$code("plot"),tags$b(" - Plot: "),"An area containing four rows of plants, where each row is 40 ft long. Only one spacing dimension treatment is applied per plot."),
+                     tags$li(tags$code("plotArea"),tags$b(" - Plot Area ",tags$i("(square feet)"),": "),"The total area of each plot."),
+                     tags$ul(tags$li("Between Row Distance of 10 ft = 40 ft across four rows x 40 ft row length = Plot Area of 1,600 ft",tags$sup(2)),
+                             tags$li("Between Row Distance of 5 ft = 20 ft across four rows x 40 ft row length = Plot Area of 800 ft",tags$sup(2))
+                             ),
+                     tags$li(tags$code("pumpkinID"),tags$b(" - Pumpkin Identifier: "),"A unique identifier for each harvested pumpkin comprised of the Study Abbreviation (*S*pacing) - Year - Plot - Color - Pumpkin Number"),
+                     tags$li(tags$code("pumpkinNum"),tags$b(" - Pumpkin Number: "),"The assigned number each harvested pumpkin was labeled with in each plot. Non-unique across plots."),
+                     tags$li(tags$code("rep"),tags$b(" - Repetition: "),"The repetition number of each plant spacing dimension treatment in each year."),
+                     tags$li(tags$code("spacingDim"),tags$b(" - Plant Spacing Dimension ",tags$i("(feet)"),": "),"A plant spacing treatment representing the between row by in row spacing dimension of each plant, used to calculate the plant area."),
+                     tags$li(tags$code("standCount"),tags$b(" - Stand Count: "),"The total number of surviving stands (plants) on the inner two rows of each plot."),
+                     tags$li(tags$code("standCountIdeal"),tags$b(" - Ideal Stand Count: "),"The ideal, or expected total number of stands (plants) on the inner two rows of each plot based on the plant spacing dimension."),
+                     tags$li(tags$code("standCountIdealPct"),tags$b(" - Percent of Ideal Stand Count: "),"Stand Count / Ideal Stand Count = Percent of the ideal total number of stands (plants) on the inner two rows of each plot based on the plant spacing dimension."),
+                     tags$li(tags$code("treatment"),tags$b(" - Treatment: "),"A numerical value of 1, 2, 3, 4, 5, 6, 7, or 8 assigned to each of the eight different spacing dimension treatments."),
+                     tags$li(tags$code("year"),tags$b(" - Year: "),"The year of the growing season the study was conducted. 12-week period from June to September.")
+                 ),
+        )
+    })
+    
+    output$infoSpaceStudyContact <- renderUI({
+        tags$div(tags$h3(tags$b("Researcher: "),"Kim Heagy"),
+                 tags$h4("Department of Horticultural Science"),
+                 tags$h5("North Carolina State University"),
+                 tags$br(),
+                 tags$h3(tags$b("Analysts: "),"Brian Sugg and Chengxi Zou"),
+                 tags$h4("Department of Statistics"),
+                 tags$h5("North Carolina State University"),
+        )
+    })
+    
     output$infoSpaceStudyDown <- renderUI({
         tags$div(tags$br(),
                  HTML(paste("All of the prepared data from the plant spacing study can be downloaded in the preferred 
@@ -261,8 +311,10 @@ function(input, output, session) {
     output$infoSpaceAreaTable <- function() {
         req(input$infoSpaceSelectArea)
         pumpkinsAreaTable <- pumpkins() %>% filter(plantArea == input$infoSpaceSelectArea)
-        pumpkinsAreaTable <- pumpkinsAreaTable %>% select(spacingDim,plot,pumpkinID,diameter,volumeEllipsoid,weight,standCount,standCountIdeal,standCountIdealPct) %>%
-            group_by(spacingDim,plot) %>% summarise("Pumpkin Count"=n(),
+        pumpkinsAreaTable <- pumpkinsAreaTable %>% select(spacingDim,plot,plotArea,harvestArea,pumpkinID,diameter,volumeEllipsoid,weight,standCount,standCountIdeal,standCountIdealPct) %>%
+            group_by(spacingDim,plot) %>% summarise("Plot Area (sq. ft.)"=mean(plotArea),
+                                                    "Harvest Area (sq. ft.)"=mean(harvestArea),
+                                                    "Harvest Pumpkin Count"=n(),
                                                     "Avg Diameter (Inches)"=round(mean(diameter),1),
                                                     "Avg Volume (cu. in.)"=round(mean(volumeEllipsoid),1),
                                                     "Avg Weight (lbs)"=round(mean(weight),1),
@@ -279,25 +331,25 @@ function(input, output, session) {
         if(input$infoSpaceSelectArea=="10"){
             tags$img(src="images/spacing/drone/plantSpace10.JPG",
                      width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                     tags$caption("Growth by Spacing Dimensions: 10 x 1 (Left), 5 x 2 (Right)")
+                     tags$caption("Plot Area of Spacing Dimensions: 10 x 1 (Left), 5 x 2 (Right)")
             )
         } else{
             if(input$infoSpaceSelectArea=="20"){
                 tags$img(src="images/spacing/drone/plantSpace20.JPG",
                          width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                         tags$caption("Growth by Spacing Dimensions: 10 x 2 (Left), 5 x 4 (Right)")
+                         tags$caption("Plot Area of Spacing Dimensions: 10 x 2 (Left), 5 x 4 (Right)")
                 )
             } else{
                 if(input$infoSpaceSelectArea=="30"){
                     tags$img(src="images/spacing/drone/plantSpace30.JPG",
                              width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                             tags$caption("Growth by Spacing Dimensions: 10 x 3 (Left), 5 x 6 (Right)")
+                             tags$caption("Plot Area of Spacing Dimensions: 10 x 3 (Left), 5 x 6 (Right)")
                     )
                 } else{
                     if(input$infoSpaceSelectArea=="40"){
                         tags$img(src="images/spacing/drone/plantSpace40.JPG",
                                  width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                                 tags$caption("Growth by Spacing Dimensions: 10 x 4 (Left), 5 x 8 (Right)")
+                                 tags$caption("Plot Area of Spacing Dimensions: 10 x 4 (Left), 5 x 8 (Right)")
                         )
                     } else{}}}}
     })
@@ -305,29 +357,28 @@ function(input, output, session) {
         if(input$infoSpaceSelectArea=="10"){
             tags$img(src="images/spacing/drone/plantSpaceHarvest10.JPG",
                      width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                     tags$caption("Harvest by Spacing Dimensions: 10 x 1 (Left), 5 x 2 (Right)")
+                     tags$caption("Harvest Area of Spacing Dimensions: 10 x 1 (Left), 5 x 2 (Right)")
             )
         } else{
             if(input$infoSpaceSelectArea=="20"){
                 tags$img(src="images/spacing/drone/plantSpaceHarvest20.JPG",
                          width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                         tags$caption("Harvest by Spacing Dimensions: 10 x 2 (Left), 5 x 4 (Right)")
+                         tags$caption("Harvest Area of Spacing Dimensions: 10 x 2 (Left), 5 x 4 (Right)")
                 )
             } else{
                 if(input$infoSpaceSelectArea=="30"){
                     tags$img(src="images/spacing/drone/plantSpaceHarvest30.JPG",
                              width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                             tags$caption("Harvest by Spacing Dimensions: 10 x 3 (Left), 5 x 6 (Right)")
+                             tags$caption("Harvest Area of Spacing Dimensions: 10 x 3 (Left), 5 x 6 (Right)")
                     )
                 } else{
                     if(input$infoSpaceSelectArea=="40"){
                         tags$img(src="images/spacing/drone/plantSpaceHarvest40.JPG",
                                  width="100%",style="display: block; margin-left: auto; margin-right: auto;",
-                                 tags$caption("Harvest by Spacing Dimensions: 10 x 4 (Left), 5 x 8 (Right)")
+                                 tags$caption("Harvest Area of Spacing Dimensions: 10 x 4 (Left), 5 x 8 (Right)")
                         )
                     } else{}}}}
     })
-
     
     #####
     ##### DATA EXPLORATION - SPACING
@@ -341,170 +392,512 @@ function(input, output, session) {
     
     # GRAPHS
     
-    # 100pct stack chart color finder
-
+    ############# SPACING CHARTS FOR QUANTITY ###############
+    
+    # 100pct stack color finder
     colorFinderStack <- reactive({
         # Filter on user selected color
         if (input$colorSelection == "Orange"){
             stackColor <- as.vector(c("dark orange"))
         } else{
-        if (input$colorSelection == "Green"){
-            stackColor <- as.vector(c("dark green"))
-        } else {
-            stackColor <- as.vector(c("dark green", "dark orange"))
-        }}
+            if (input$colorSelection == "Green"){
+                stackColor <- as.vector(c("dark green"))
+            } else {
+                stackColor <- as.vector(c("dark green", "dark orange"))
+            }}
     })
     
-    # 100pct stack chart of pumpkin count by color by spacing dimension
-    output$exSpaceStackColorDim <- renderPlotly({
-        getPumpkins <- pumpkins()
-        stackColorDim <- ggplot(getPumpkins, aes(x=spacingDim,fill=color)) +
+    # Custom formula for 100pct stack color
+    plot_color_100 <- function(df, feature, label_column) {
+        plt <- ggplot(df, aes(x=eval(parse(text=label_column)),fill=eval(parse(text=feature)))) +
+            geom_bar(stat = "count",
+                     position = "fill") +
+            scale_fill_manual(values = feature) +
+            scale_y_continuous(labels = scales::percent_format(scale = 100)) +
+            theme(legend.position="none") +
+            labs(x==eval(parse(text=label_column)),
+                 y="Pumpkin Count %",
+                 fill="Pumpkin Color")
+    }
+    
+    # REACTIVE chain for drop down selection values of spacing dimension
+    dimChoicesQty <- reactive({
+        if(input$exSpaceQtyArea=="All"){
+            dimChoice <- c("All","10 x 1","10 x 2","10 x 3","10 x 4","5 x 2","5 x 4","5 x 6","5 x 8")}
+        if(input$exSpaceQtyArea=="10"){
+            dimChoice <- c("All","10 x 1","5 x 2")}
+        if(input$exSpaceQtyArea=="20"){
+            dimChoice <- c("All","10 x 2","5 x 4")}
+        if(input$exSpaceQtyArea=="30"){
+            dimChoice <- c("All","10 x 3","5 x 6")}
+        if(input$exSpaceQtyArea=="40"){
+            dimChoice <- c("All","10 x 4","5 x 8")}
+        return(dimChoice)
+    })
+    output$exSpaceQtyDim = renderUI({
+        selectInput(inputId = "exSpaceQtyDimReact", label = "Spacing Dimension", dimChoicesQty())
+    })
+    
+    # REACTIVE variables that react to user input
+    # Solo reaction for group by
+    qtyGroup <- reactive({
+        # Apply user selected grouping
+        quantityGroupSelect <- input$exSpaceQtyGroup
+    })
+    # REACTIVE chain for plant area and spacing dimension
+    pumpkinsQtyArea <- reactive({
+        # Filter on user selected plant area
+        if (input$exSpaceQtyArea=="All") {
+            pumpkinsQty <- pumpkins()
+        } else{pumpkinsQty <- pumpkins() %>% filter(plantArea == input$exSpaceQtyArea)}
+    })
+    pumpkinsQtyDim <- reactive({
+        # Filter on user selected spacing dimension
+        if (input$exSpaceQtyDimReact=="All") {
+            pumpkinsQty <- pumpkinsQtyArea()
+        } else{pumpkinsQty <- pumpkinsQtyArea() %>% filter(spacingDim == input$exSpaceQtyDimReact)}
+    })
+    
+    # Data table to feed the quantity bar graphs
+    pumpkinsQtyBarTab <- reactive({
+        # Generate summary table from previous user selections for graphing
+        pumpkinsQtyDim() %>%
+            select(plantArea,spacingDim,betweenRow,inRow,year,plot,pumpkinID) %>%
+            group_by(plantArea,spacingDim,betweenRow,inRow,year,plot) %>%
+            summarise("pumpkinCount"=n())
+    })
+    
+    # Data table to feed the diameter quantity line graphs
+    pumpkinsQtyDiaTab <- reactive({
+        # Generate summary table from previous user selections for graphing
+        pumpkinsQtyDim() %>%
+            select(plantArea,spacingDim,betweenRow,inRow,year,plot,diameterRoundUp,pumpkinID,diameter,volumeEllipsoid,weight) %>%
+            group_by(plantArea,spacingDim,betweenRow,inRow,year,plot,diameterRoundUp) %>% 
+            summarise("pumpkinCount"=n(),
+                      "Avg Diameter (Inches)"=round(mean(diameter),1),
+                      "Avg Volume (cu. in.)"=round(mean(volumeEllipsoid),1),
+                      "Avg Weight (lbs)"=round(mean(weight),1))
+    })
+    
+    # Data table to feed the diameter quantity line graphs
+    pumpkinsQtyDiaColor <- reactive({
+        # Generate summary table from previous user selections for graphing
+        pumpkinsQtyDim() %>%
+            select(plantArea,spacingDim,betweenRow,inRow,year,plot,diameterRoundUp,color,pumpkinID) %>%
+            group_by(plantArea,spacingDim,betweenRow,inRow,year,plot,diameterRoundUp,color) %>% 
+            summarise("pumpkinCount"=n())
+    })
+    
+    ###
+    ### Diameter DISTR Charts
+    ###
+
+    output$exSpaceQtyDia <- renderPlotly({
+        withProgress(message = 'Generating Charts...', value = 0,{
+            incProgress(0, detail = "for Diameter")
+        # Return preferred plot
+        if(input$exSpaceQtyPlot=="averagePlot"){
+            getPumpkins <- pumpkinsQtyDiaTab() %>%
+                select(qtyGroup(),diameterRoundUp,pumpkinCount) %>%
+                group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+                summarise("pumpkinAvgCount"=mean(pumpkinCount))
+            names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+            diaCount <- ggplot(getPumpkins,aes(x=diameterRoundUp,y=plotAverageCount,group=qtyGroup(),color=eval(parse(text=qtyGroup())))) +
+                geom_line(size=1) +
+                geom_point() +
+                labs(title="Average Pumpkin Count per RoundUp Diameter",
+                     x="Pumpkin Diameter Rounded Up (inches)",
+                     y="Average Pumpkin Count - Harvest Area")
+            #diaCount + guides(fill=guide_legend(title=qtyGroup())) # This is not working as expected to change legend title...???
+            y <- ggplotly(diaCount)
+            incProgress(1/4, detail = "for Diameter")
+            y
+        } else{
+            if(input$exSpaceQtyPlot=="scaledAveragePlot"){
+                scaledPumpkins <- pumpkinsQtyDiaTab()
+                # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+                getPumpkins <- scaledPumpkins %>%
+                    select(qtyGroup(),diameterRoundUp,scaledPumpkinCount) %>%
+                    group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+                    summarise("pumpkinAvgCount"=mean(scaledPumpkinCount))
+                names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                
+                diaCount <- ggplot(getPumpkins,aes(x=diameterRoundUp,y=plotScaledAverageCount,group=qtyGroup(),color=eval(parse(text=qtyGroup())))) +
+                    geom_line(size=1) +
+                    geom_point() +
+                    labs(title="Scaled Average Pumpkin Count per Plot per RoundUp Diameter",
+                         x="Pumpkin Diameter Rounded Up (inches)",
+                         y="Average Pumpkin Count - Scaled Harvest Area")
+                #diaCount + guides(fill=guide_legend(title=qtyGroup())) # This is not working as expected to change legend title...???
+                y <- ggplotly(diaCount)
+                incProgress(1/4, detail = "for Diameter")
+                y
+            } else{
+                if(input$exSpaceQtyPlot=="scaledAverageAcre"){
+                    scaledPumpkins <- pumpkinsQtyDiaTab()
+                    # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                    # Scale both to an acre with 43,560 sq ft in an acre (43560/400=108.9)
+                    scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2*108.9,pumpkinCount*108.9))
+                    getPumpkins <- scaledPumpkins %>%
+                        select(qtyGroup(),diameterRoundUp,scaledPumpkinCount) %>%
+                        group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+                        summarise("pumpkinAvgCount"=mean(scaledPumpkinCount))
+                    names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","acreScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                    
+                    diaCount <- ggplot(getPumpkins,aes(x=diameterRoundUp,y=acreScaledAverageCount,group=qtyGroup(),color=eval(parse(text=qtyGroup())))) +
+                        geom_line(size=1) +
+                        geom_point() +
+                        labs(title="Scaled Average Pumpkin Count per Acre per RoundUp Diameter",
+                             x="Pumpkin Diameter Rounded Up (inches)",
+                             y="Average Pumpkin Count - Scaled Area")
+                    #diaCount + guides(fill=guide_legend(title=qtyGroup())) # This is not working as expected to change legend title...???
+                    y <- ggplotly(diaCount)
+                    incProgress(1/4, detail = "for Diameter")
+                    y
+                    } else{
+                        if(input$exSpaceQtyPlot=="totalPlot"){
+                            getPumpkins <- pumpkinsQtyDiaTab() %>%
+                                select(qtyGroup(),diameterRoundUp,pumpkinCount) %>%
+                                group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+                                summarise("pumpkinAvgCount"=sum(pumpkinCount))
+                            names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                            diaCount <- ggplot(getPumpkins,aes(x=diameterRoundUp,y=plotSumCount,group=qtyGroup(),color=eval(parse(text=qtyGroup())))) +
+                                geom_line(size=1) +
+                                geom_point() +
+                                labs(title="Total Pumpkin Count per RoundUp Diameter",
+                                     x="Pumpkin Diameter Rounded Up (inches)",
+                                     y="Total Pumpkin Count - Harvest Area")
+                            #diaCount + guides(fill=guide_legend(title=qtyGroup())) # This is not working as expected to change legend title...???
+                            y <- ggplotly(diaCount)
+                            incProgress(1/4, detail = "for Diameter")
+                            y
+                        } else{
+                            if(input$exSpaceQtyPlot=="scaledTotalPlot"){
+                                scaledPumpkins <- pumpkinsQtyDiaTab()
+                                # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                                scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+                                getPumpkins <- scaledPumpkins %>%
+                                    select(qtyGroup(),diameterRoundUp,scaledPumpkinCount) %>%
+                                    group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+                                    summarise("pumpkinAvgCount"=sum(scaledPumpkinCount))
+                                names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotScaledSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                                
+                                diaCount <- ggplot(getPumpkins,aes(x=diameterRoundUp,y=plotScaledSumCount,group=qtyGroup(),color=eval(parse(text=qtyGroup())))) +
+                                    geom_line(size=1) +
+                                    geom_point() +
+                                    labs(title="Scaled Total Pumpkin Count per Plot per RoundUp Diameter",
+                                         x="Pumpkin Diameter Rounded Up (inches)",
+                                         y="Total Pumpkin Count - Scaled Harvest Area")
+                                #diaCount + guides(fill=guide_legend(title=qtyGroup())) # This is not working as expected to change legend title...???
+                                y <- ggplotly(diaCount)
+                                incProgress(1/4, detail = "for Diameter")
+                                y
+                            } else{}}}}}
+        }) # END Progress Bar
+    })
+    
+    ###
+    ### BAR Charts
+    ###
+    output$exSpaceQtyBar <- renderPlotly({
+        withProgress(message = 'Generating Charts...', value = 0,{
+            incProgress(1/4, detail = "for Count")
+        # Return preferred plot
+        if(input$exSpaceQtyPlot=="averagePlot"){
+            getPumpkins <- pumpkinsQtyBarTab() %>%
+                select(qtyGroup(),pumpkinCount) %>%
+                group_by(eval(parse(text=qtyGroup()))) %>% # Use the parse to create row for every value of group by
+                summarise("pumpkinCountAvg"=mean(pumpkinCount))
+            names(getPumpkins) <- c(qtyGroup(),"plotAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+            barCount <- ggplot(getPumpkins, aes(x=eval(parse(text=qtyGroup())),y=plotAverageCount,fill=eval(parse(text=qtyGroup())))) +
+                geom_col() +
+                theme(legend.position="none") +
+                labs(title="Average Pumpkin Count per Plot",
+                     x=qtyGroup(),
+                     y="Average Pumpkin Count - Harvest Area")
+            y <- ggplotly(barCount)
+            incProgress(2/4, detail = "for Count")
+            y
+        } else{
+            if(input$exSpaceQtyPlot=="scaledAveragePlot"){
+                scaledPumpkins <- pumpkinsQtyBarTab()
+                # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+                getPumpkins <- scaledPumpkins %>%
+                    select(qtyGroup(),scaledPumpkinCount) %>%
+                    group_by(eval(parse(text=qtyGroup()))) %>% # Use the parse to create row for every value of group by
+                    summarise("pumpkinCountAvg"=mean(scaledPumpkinCount))
+                names(getPumpkins) <- c(qtyGroup(),"plotScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                barCount <- ggplot(getPumpkins, aes(x=eval(parse(text=qtyGroup())),y=plotScaledAverageCount,fill=eval(parse(text=qtyGroup())))) +
+                    geom_col() +
+                    theme(legend.position="none") +
+                    labs(title="Scaled Average Pumpkin Count per Plot",
+                         x=qtyGroup(),
+                         y="Average Pumpkin Count - Scaled Harvest Area")
+                y <- ggplotly(barCount)
+                incProgress(2/4, detail = "for Count")
+                y
+            } else{
+                if(input$exSpaceQtyPlot=="scaledAverageAcre"){
+                    scaledPumpkins <- pumpkinsQtyBarTab()
+                    # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                    # Scale both to an acre with 43,560 sq ft in an acre (43560/400=108.9)
+                    scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2*108.9,pumpkinCount*108.9))
+                    getPumpkins <- scaledPumpkins %>%
+                        select(qtyGroup(),scaledPumpkinCount) %>%
+                        group_by(eval(parse(text=qtyGroup()))) %>% # Use the parse to create row for every value of group by
+                        summarise("pumpkinCountAvg"=mean(scaledPumpkinCount))
+                    names(getPumpkins) <- c(qtyGroup(),"acreScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                    barCount <- ggplot(getPumpkins, aes(x=eval(parse(text=qtyGroup())),y=acreScaledAverageCount,fill=eval(parse(text=qtyGroup())))) +
+                        geom_col() +
+                        theme(legend.position="none") +
+                        labs(title="Scaled Average Pumpkin Count per Acre",
+                             x=qtyGroup(),
+                             y="Average Pumpkin Count - Scaled Acre")
+                    y <- ggplotly(barCount)
+                    incProgress(2/4, detail = "for Count")
+                    y
+                } else{
+                    if(input$exSpaceQtyPlot=="totalPlot"){
+                        getPumpkins <- pumpkinsQtyBarTab()
+                        getPumpkins <- getPumpkins %>%
+                            select(qtyGroup(),pumpkinCount) %>%
+                            group_by(eval(parse(text=qtyGroup()))) %>% # Use the parse to create row for every value of group by
+                            summarise("pumpkinCountSum"=sum(pumpkinCount))
+                        names(getPumpkins) <- c(qtyGroup(),"plotSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                        barCount <- ggplot(getPumpkins, aes(x=eval(parse(text=qtyGroup())),y=plotSumCount,fill=eval(parse(text=qtyGroup())))) +
+                            geom_col() +
+                            theme(legend.position="none") +
+                            labs(title="Total Pumpkin Count",
+                                 x=qtyGroup(),
+                                 y="Total Pumpkin Count - Harvest Area")
+                        y <- ggplotly(barCount)
+                        incProgress(2/4, detail = "for Count")
+                        y
+                    } else{
+                        if(input$exSpaceQtyPlot=="scaledTotalPlot"){
+                            scaledPumpkins <- pumpkinsQtyBarTab()
+                            # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                            scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+                            getPumpkins <- scaledPumpkins %>%
+                                select(qtyGroup(),scaledPumpkinCount) %>%
+                                group_by(eval(parse(text=qtyGroup()))) %>% # Use the parse to create row for every value of group by
+                                summarise("pumpkinCountSum"=sum(scaledPumpkinCount))
+                            names(getPumpkins) <- c(qtyGroup(),"plotScaledSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                            barCount <- ggplot(getPumpkins, aes(x=eval(parse(text=qtyGroup())),y=plotScaledSumCount,fill=eval(parse(text=qtyGroup())))) +
+                                geom_col() +
+                                theme(legend.position="none") +
+                                labs(title="Scaled Total Pumpkin Count",
+                                     x=qtyGroup(),
+                                     y="Total Pumpkin Count - Scaled Harvest Area")
+                            y <- ggplotly(barCount)
+                            incProgress(2/4, detail = "for Count")
+                            y
+                        } else{}}}}}
+    }) # END Progress Bar
+    })
+    
+    # # Data table matching diameter quantity line graphs that feeds the associated data table
+    # pumpkinsQtyDisplayTab <- reactive({
+    #         # Return preferred plot
+    #         if(input$exSpaceQtyPlot=="averagePlot"){
+    #             getPumpkins <- pumpkinsQtyDiaTab() %>%
+    #                 select(qtyGroup(),diameterRoundUp,pumpkinCount) %>%
+    #                 group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+    #                 summarise("pumpkinAvgCount"=mean(pumpkinCount))
+    #             names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+    #             getPumpkins[3] <- round(getPumpkins[3],1)
+    #             getPumpkins
+    #         } else{
+    #             if(input$exSpaceQtyPlot=="scaledAveragePlot"){
+    #                 scaledPumpkins <- pumpkinsQtyDiaTab()
+    #                 # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+    #                 scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+    #                 getPumpkins <- scaledPumpkins %>%
+    #                     select(qtyGroup(),diameterRoundUp,scaledPumpkinCount) %>%
+    #                     group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+    #                     summarise("pumpkinAvgCount"=mean(scaledPumpkinCount))
+    #                 names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+    #                 getPumpkins[3] <- round(getPumpkins[3],1)
+    #                 getPumpkins
+    #                 } else{
+    #                 if(input$exSpaceQtyPlot=="scaledAverageAcre"){
+    #                     scaledPumpkins <- pumpkinsQtyDiaTab()
+    #                     # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+    #                     # Scale both to an acre with 43,560 sq ft in an acre (43560/400=108.9)
+    #                     scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2*108.9,pumpkinCount*108.9))
+    #                     getPumpkins <- scaledPumpkins %>%
+    #                         select(qtyGroup(),diameterRoundUp,scaledPumpkinCount) %>%
+    #                         group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+    #                         summarise("pumpkinAvgCount"=mean(scaledPumpkinCount))
+    #                     names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","acreScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+    #                     getPumpkins[3] <- round(getPumpkins[3],1)
+    #                     getPumpkins
+    #                 } else{
+    #                     if(input$exSpaceQtyPlot=="totalPlot"){
+    #                         getPumpkins <- pumpkinsQtyDiaTab() %>%
+    #                             select(qtyGroup(),diameterRoundUp,pumpkinCount) %>%
+    #                             group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+    #                             summarise("pumpkinAvgCount"=sum(pumpkinCount))
+    #                         names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+    #                         getPumpkins
+    #                     } else{
+    #                         if(input$exSpaceQtyPlot=="scaledTotalPlot"){
+    #                             scaledPumpkins <- pumpkinsQtyDiaTab()
+    #                             # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+    #                             scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+    #                             getPumpkins <- scaledPumpkins %>%
+    #                                 select(qtyGroup(),diameterRoundUp,scaledPumpkinCount) %>%
+    #                                 group_by(eval(parse(text=qtyGroup())),diameterRoundUp) %>% # Use the parse to create row for every value of group by
+    #                                 summarise("pumpkinAvgCount"=sum(scaledPumpkinCount))
+    #                             names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","plotScaledSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+    #                             getPumpkins
+    #                         } else{}}}}}
+    # })
+    
+    # # Reactive table of values by user group selection
+    # output$exSpaceQtyTable <- function() {
+    #         # Return preferred selection
+    #         getPumpkins <- pumpkinsQtyDisplayTab()
+    #         names(getPumpkins)[1:3] <- c(qtyGroup(),"Diameter Round Up (inches)","Pumpkin Count")
+    #         getPumpkins %>%
+    #         knitr::kable("html") %>%
+    #         kable_styling("striped",full_width=TRUE,position="left",fixed_thead = TRUE)
+    # }
+    
+    # Data table matching diameter quantity line graphs that feeds the associated data table
+    pumpkinsQtyDisplayTab <- reactive({
+        # Return preferred plot
+        if(input$exSpaceQtyPlot=="averagePlot"){
+            getPumpkins <- pumpkinsQtyDiaColor() %>%
+                select(qtyGroup(),diameterRoundUp,color,pumpkinCount) %>%
+                group_by(eval(parse(text=qtyGroup())),diameterRoundUp,color) %>% # Use the parse to create row for every value of group by
+                summarise("pumpkinAvgCount"=mean(pumpkinCount))
+            names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","color","plotAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+            getPumpkins[4] <- round(getPumpkins[4],1)
+            getPumpkins
+        } else{
+            if(input$exSpaceQtyPlot=="scaledAveragePlot"){
+                scaledPumpkins <- pumpkinsQtyDiaColor()
+                # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+                getPumpkins <- scaledPumpkins %>%
+                    select(qtyGroup(),diameterRoundUp,color,scaledPumpkinCount) %>%
+                    group_by(eval(parse(text=qtyGroup())),diameterRoundUp,color) %>% # Use the parse to create row for every value of group by
+                    summarise("pumpkinAvgCount"=mean(scaledPumpkinCount))
+                names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","color","plotScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                getPumpkins[4] <- round(getPumpkins[4],1)
+                getPumpkins
+            } else{
+                if(input$exSpaceQtyPlot=="scaledAverageAcre"){
+                    scaledPumpkins <- pumpkinsQtyDiaColor()
+                    # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                    # Scale both to an acre with 43,560 sq ft in an acre (43560/400=108.9)
+                    scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2*108.9,pumpkinCount*108.9))
+                    getPumpkins <- scaledPumpkins %>%
+                        select(qtyGroup(),diameterRoundUp,color,scaledPumpkinCount) %>%
+                        group_by(eval(parse(text=qtyGroup())),diameterRoundUp,color) %>% # Use the parse to create row for every value of group by
+                        summarise("pumpkinAvgCount"=mean(scaledPumpkinCount))
+                    names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","color","acreScaledAverageCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                    getPumpkins[4] <- round(getPumpkins[4],1)
+                    getPumpkins
+                } else{
+                    if(input$exSpaceQtyPlot=="totalPlot"){
+                        getPumpkins <- pumpkinsQtyDiaColor() %>%
+                            select(qtyGroup(),diameterRoundUp,color,pumpkinCount) %>%
+                            group_by(eval(parse(text=qtyGroup())),diameterRoundUp,color) %>% # Use the parse to create row for every value of group by
+                            summarise("pumpkinAvgCount"=sum(pumpkinCount))
+                        names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","color","plotSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                        getPumpkins
+                    } else{
+                        if(input$exSpaceQtyPlot=="scaledTotalPlot"){
+                            scaledPumpkins <- pumpkinsQtyDiaColor()
+                            # Scale 5' betweenRow plots to equal harvest area of 400 sq ft to match that of 10' betweenRow plots
+                            scaledPumpkins <- scaledPumpkins %>% mutate(scaledPumpkinCount=ifelse(betweenRow=="5",pumpkinCount*2,pumpkinCount))
+                            getPumpkins <- scaledPumpkins %>%
+                                select(qtyGroup(),diameterRoundUp,color,scaledPumpkinCount) %>%
+                                group_by(eval(parse(text=qtyGroup())),diameterRoundUp,color) %>% # Use the parse to create row for every value of group by
+                                summarise("pumpkinAvgCount"=sum(scaledPumpkinCount))
+                            names(getPumpkins) <- c(qtyGroup(),"diameterRoundUp","color","plotScaledSumCount") # Have to change column names else it will show eval(parse(text=qtyGroup())) as col name
+                            getPumpkins
+                        } else{}}}}}
+    })
+    
+    # Stacked bar chart of pumpkin count by color by diameter round up
+    output$exSpaceQtyDiaColor <- renderPlotly({
+        getPumpkins <- pumpkinsQtyDisplayTab()
+        if(input$exSpaceQtyPlot=="averagePlot"){
+            stackColor <- ggplot(getPumpkins, aes(x=diameterRoundUp,y=plotAverageCount,fill=color)) +
+                geom_bar(position="stack", stat="identity") +
+                scale_fill_manual(values = colorFinderStack()) +
+                labs(title="Pumpkin Color Distribution",
+                     fill="Color",
+                     x="Pumpkin Diameter Rounded Up (inches)",
+                     y="Average Pumpkin Count - Harvest Area")
+            y <- ggplotly(stackColor)
+            y
+        } else{
+            if(input$exSpaceQtyPlot=="scaledAveragePlot"){
+                stackColor <- ggplot(getPumpkins, aes(x=diameterRoundUp,y=plotScaledAverageCount,fill=color)) +
+                    geom_bar(position="stack", stat="identity") +
+                    scale_fill_manual(values = colorFinderStack()) +
+                    labs(title="Pumpkin Color Distribution",
+                         fill="Color",
+                         x="Pumpkin Diameter Rounded Up (inches)",
+                         y="Average Pumpkin Count - Scaled Harvest Area")
+                y <- ggplotly(stackColor)
+                y
+            } else{
+                if(input$exSpaceQtyPlot=="scaledAverageAcre"){
+                    stackColor <- ggplot(getPumpkins, aes(x=diameterRoundUp,y=acreScaledAverageCount,fill=color)) +
+                        geom_bar(position="stack", stat="identity") +
+                        scale_fill_manual(values = colorFinderStack()) +
+                        labs(title="Pumpkin Color Distribution",
+                             fill="Color",
+                             x="Pumpkin Diameter Rounded Up (inches)",
+                             y="Average Pumpkin Count - Scaled Area")
+                    y <- ggplotly(stackColor)
+                    y
+                } else{
+                    if(input$exSpaceQtyPlot=="totalPlot"){
+                        stackColor <- ggplot(getPumpkins, aes(x=diameterRoundUp,y=plotSumCount,fill=color)) +
+                            geom_bar(position="stack", stat="identity") +
+                            scale_fill_manual(values = colorFinderStack()) +
+                            labs(title="Pumpkin Color Distribution",
+                                 fill="Color",
+                                 x="Pumpkin Diameter Rounded Up (inches)",
+                                 y="Total Pumpkin Count - Harvest Area")
+                        y <- ggplotly(stackColor)
+                        y
+                    } else{
+                        if(input$exSpaceQtyPlot=="scaledTotalPlot"){
+                            stackColor <- ggplot(getPumpkins, aes(x=diameterRoundUp,y=plotScaledSumCount,fill=color)) +
+                                geom_bar(position="stack", stat="identity") +
+                                scale_fill_manual(values = colorFinderStack()) +
+                                labs(title="Pumpkin Color Distribution",
+                                     fill="Color",
+                                     x="Pumpkin Diameter Rounded Up (inches)",
+                                     y="Total Pumpkin Count - Scaled Harvest Area")
+                            y <- ggplotly(stackColor)
+                            y
+                        } else{}}}}}
+    })
+    
+    # 100pct stack chart of pumpkin count by color
+    output$exSpaceQtyColor <- renderPlotly({
+        getPumpkins <- pumpkinsQtyDim()
+        stackColor <- ggplot(getPumpkins, aes(x=eval(parse(text=qtyGroup())),fill=color)) +
             geom_bar(stat = "count",
                      position = "fill") +
             scale_fill_manual(values = colorFinderStack()) +
             scale_y_continuous(labels = scales::percent_format(scale = 100)) +
             theme(legend.position="none") +
-            labs(x="Spacing Dimension (Feet)",
+            labs(title = paste0("Pumpkin Color Distribution"),
+                 x=qtyGroup(),
                  y="Pumpkin Count %",
                  fill="Pumpkin Color")
-        y <- ggplotly(stackColorDim)
-        y
-    })
-    
-    # 100pct stack chart of pumpkin count by color by plant area
-    output$exSpaceStackColorArea <- renderPlotly({
-        getPumpkins <- pumpkins()
-        stackColorArea <- ggplot(getPumpkins, aes(x=plantArea,fill=color)) +
-            geom_bar(stat = "count",
-                     position = "fill") +
-            scale_fill_manual(values = colorFinderStack()) +
-            scale_y_continuous(labels = scales::percent_format(scale = 100)) +
-            theme(legend.position="none") +
-            labs(x="Plant Area (Square Feet)",
-                 y="Pumpkin Count %",
-                 fill="Pumpkin Color")
-        y <- ggplotly(stackColorArea)
-        y
-    })
-    
-    # 100pct stack chart of pumpkin count by color by between row
-    output$exSpaceStackColorBR <- renderPlotly({
-        getPumpkins <- pumpkins()
-        stackColorBR <- ggplot(getPumpkins, aes(x=betweenRow,fill=color)) +
-            geom_bar(stat = "count",
-                     position = "fill") +
-            scale_fill_manual(values = colorFinderStack()) +
-            scale_y_continuous(labels = scales::percent_format(scale = 100)) +
-            theme(legend.position="none") +
-            labs(x="Between Row Distance (Feet)",
-                 y="Pumpkin Count %",
-                 fill="Pumpkin Color")
-        y <- ggplotly(stackColorBR)
-        y
-    })
-    
-    # Boxplot of volume by spacing dimension
-    output$exSpaceBoxVolDim <- renderPlotly({
-        getPumpkins <- pumpkins()
-        boxVolDim <- ggplot(getPumpkins, aes(x=spacingDim,y=volumeEllipsoid,fill=spacingDim)) +
-            geom_boxplot(varwidth = TRUE, alpha=0.2) +
-            theme(legend.position="none") +
-            labs(x="Spacing Dimension (Feet)",
-                 y="Pumpkin Volume (Cubic Inches)")
-        y <- ggplotly(boxVolDim)
-        y
-    })
-    
-    # Boxplot of volume by plant area
-    output$exSpaceBoxVolArea <- renderPlotly({
-        getPumpkins <- pumpkins()
-        boxVolArea <- ggplot(getPumpkins, aes(x=plantArea,y=volumeEllipsoid,fill=plantArea)) +
-            geom_boxplot(varwidth = TRUE, alpha=0.2) +
-            theme(legend.position="none") +
-            labs(x="Plant Area (Square Feet)",
-                 y="Pumpkin Volume (Cubic Inches)")
-        y <- ggplotly(boxVolArea)
-        y
-    })
-    
-    # Boxplot of volume by between row
-    output$exSpaceBoxVolBR <- renderPlotly({
-        getPumpkins <- pumpkins()
-        boxVolBR <- ggplot(getPumpkins, aes(x=betweenRow,y=volumeEllipsoid,fill=betweenRow)) +
-            geom_boxplot(varwidth = TRUE, alpha=0.2) +
-            theme(legend.position="none") +
-            labs(x="Between Row Distance (Feet)",
-                 y="Pumpkin Volume (Cubic Inches)")
-        y <- ggplotly(boxVolBR)
-        y
-    })
-    
-    # Histogram of diameter by spacing dimension
-    output$exSpaceHistDiaDim <- renderPlotly({
-        getPumpkins <- pumpkins()
-        histDiaDim <- ggplot(getPumpkins, aes(x=diameter, fill=spacingDim)) +
-            geom_histogram(position="identity", alpha=0.2) +
-            labs(x="Pumpkin Diameter (Inches)",
-                 y="Pumpkin Count")
-        y <- ggplotly(histDiaDim)
-        y
-    })
-    
-    # Histogram of diameter by plant area
-    output$exSpaceHistDiaArea <- renderPlotly({
-        getPumpkins <- pumpkins()
-        histDiaArea <- ggplot(getPumpkins, aes(x=diameter, fill=plantArea)) +
-            geom_histogram(position="identity", alpha=0.2) +
-            labs(x="Pumpkin Diameter (Inches)",
-                 y="Pumpkin Count")
-        y <- ggplotly(histDiaArea)
-        y
-    })
-    
-    # Histogram of diameter by between row
-    output$exSpaceHistDiaBR <- renderPlotly({
-        getPumpkins <- pumpkins()
-        histDiaBR <- ggplot(getPumpkins, aes(x=diameter, fill=betweenRow)) +
-            geom_histogram(position="identity", alpha=0.2) +
-            labs(x="Pumpkin Diameter (Inches)",
-                 y="Pumpkin Count")
-        y <- ggplotly(histDiaBR)
-        y
-    })
-    
-    # Bar chart of pumpkin count by spacing dimension
-    output$exSpaceBarCountDim <- renderPlotly({
-        getPumpkins <- pumpkins()
-        barCountDim <- ggplot(getPumpkins, aes(x=spacingDim,fill=spacingDim)) +
-            geom_bar(stat = "count") +
-            theme(legend.position="none") +
-            labs(x="Spacing Dimension (Feet)",
-                 y="Pumpkin Count")
-        y <- ggplotly(barCountDim)
-        y
-    })
-    
-    # Bar chart of pumpkin count by plant area
-    output$exSpaceBarCountArea <- renderPlotly({
-        getPumpkins <- pumpkins()
-        barCountArea <- ggplot(getPumpkins, aes(x=plantArea,fill=plantArea)) +
-            geom_bar(stat = "count") +
-            theme(legend.position="none") +
-            labs(x="Plant Area (Square Feet)",
-                 y="Pumpkin Count")
-        y <- ggplotly(barCountArea)
-        y
-    })
-    
-    # Bar chart of pumpkin count by between row
-    output$exSpaceBarCountBR <- renderPlotly({
-        getPumpkins <- pumpkins()
-        barCountBR <- ggplot(getPumpkins, aes(x=betweenRow,fill=betweenRow)) +
-            geom_bar(stat = "count") +
-            theme(legend.position="none") +
-            labs(x="Between Row Distance (Feet)",
-                 y="Pumpkin Count")
-        y <- ggplotly(barCountBR)
+        y <- ggplotly(stackColor)
         y
     })
     
@@ -622,7 +1015,6 @@ function(input, output, session) {
                         incProgress(1/4, detail = "for Volume")
                         y
                         } else{}}}}
-                    
         }) # END Progress Bar
     })
     
@@ -769,15 +1161,173 @@ function(input, output, session) {
         )
     })
     
+    #####
+    ##### ANALYSIS - SPACING
+    #####
+    
+    # REACTIVE variables that react to user input
+    # Solo reaction for group by
+    userMetric <- reactive({
+        # Apply user selected metric
+        metricSelect <- input$aSpaceResponse
+    })
+    
+    # Listen to any changed selections of pumpkin color to display correct image
+    # NOTE: shinyapps.io requires file paths that are case sensitive (.jpg vs .JPG matters)
+    observeEvent(input$aSpacePredictor,{
+        if(input$aSpacePredictor == "plantArea"){
+            output$aSpaceResponseImage <- renderUI({
+                tags$img(src="images/spacing/drone/plantArea.JPG",width="100%",style="display: block; margin-left: auto; margin-right: auto;",
+                         tags$caption("Plant Area - Total Area for Each Plant")
+                )
+            })
+        }
+        if(input$aSpacePredictor == "spacingDim"){
+            output$aSpaceResponseImage <- renderUI({
+                tags$img(src="images/spacing/drone/spacingDim.JPG",width="100%",style="display: block; margin-left: auto; margin-right: auto;",
+                         tags$caption("Spacing Dimension - The Between Row by In Row Spacing")
+                )
+            })
+        }
+        if(input$aSpacePredictor == "betweenRow"){
+            output$aSpaceResponseImage <- renderUI({
+                tags$img(src="images/spacing/drone/betweenRow.JPG",width="100%",style="display: block; margin-left: auto; margin-right: auto;",
+                         tags$caption("Between Row - The Distance Between Each Row")
+                )
+            })
+        }
+        if(input$aSpacePredictor == "inRow"){
+            output$aSpaceResponseImage <- renderUI({
+                tags$img(src="images/spacing/drone/inRow.JPG",width="100%",style="display: block; margin-left: auto; margin-right: auto;",
+                         tags$caption("In Row - The Distance Between Plants on Each Row")
+                )
+            })
+        }
+    })
+    
+    # Value box render
+    output$aSpaceAnovaArea <- renderValueBox({
+        getPumpkins <- pumpkins()
+        twoAnovaInteract <- aov(getPumpkins[[input$aSpaceResponse]] ~ plantArea * betweenRow,data=getPumpkins)
+        twoSum <- summary(twoAnovaInteract)
+        if(twoSum[[1]][["Pr(>F)"]][[1]] < 0.05){
+            valueBox(value=tags$div(HTML(paste0(tags$h5("Pr(>F) = ",format(round(twoSum[[1]][["Pr(>F)"]][[1]],5),scientific=FALSE))))), # tags$h5 helps shrink the size of the number value in the box
+                     subtitle=tags$div(HTML(paste0(tags$b("Significant"),tags$br(),tags$h4("Plant Area")))),
+                     icon = icon("check-circle"),
+                     color="green"
+            )
+        } else{
+            valueBox(value=tags$div(HTML(paste0(tags$h5("Pr(>F) = ",format(round(twoSum[[1]][["Pr(>F)"]][[1]],5),scientific=FALSE))))), # tags$h5 helps shrink the size of the number value in the box
+                     subtitle=tags$div(HTML(paste0(tags$b("Not Significant"),tags$br(),tags$h4("Plant Area")))),
+                     icon = icon("times-circle"),
+                     color="red"
+            )
+        }
+    })
+    output$aSpaceAnovaBetween <- renderValueBox({
+        getPumpkins <- pumpkins()
+        twoAnovaInteract <- aov(getPumpkins[[input$aSpaceResponse]] ~ plantArea * betweenRow,data=getPumpkins)
+        twoSum <- summary(twoAnovaInteract)
+        if(twoSum[[1]][["Pr(>F)"]][[2]] < 0.05){
+            valueBox(value=tags$div(HTML(paste0(tags$h5("Pr(>F) = ",format(round(twoSum[[1]][["Pr(>F)"]][[2]],5),scientific=FALSE))))), # tags$h5 helps shrink the size of the number value in the box
+                     subtitle=tags$div(HTML(paste0(tags$b("Significant"),tags$br(),tags$h4("Between Row")))),
+                     icon = icon("check-circle"),
+                     color="green"
+            )
+        } else{
+            valueBox(value=tags$div(HTML(paste0(tags$h5("Pr(>F) = ",format(round(twoSum[[1]][["Pr(>F)"]][[2]],5),scientific=FALSE))))), # tags$h5 helps shrink the size of the number value in the box
+                     subtitle=tags$div(HTML(paste0(tags$b("Not Significant"),tags$br(),tags$h4("Between Row")))),
+                     icon = icon("times-circle"),
+                     color="red"
+            )
+        }
+    })
+    output$aSpaceAnovaInteract <- renderValueBox({
+        getPumpkins <- pumpkins()
+        twoAnovaInteract <- aov(getPumpkins[[input$aSpaceResponse]] ~ plantArea * betweenRow,data=getPumpkins)
+        twoSum <- summary(twoAnovaInteract)
+        if(twoSum[[1]][["Pr(>F)"]][[3]] < 0.05){
+            valueBox(value=tags$div(HTML(paste0(tags$h5("Pr(>F) = ",format(round(twoSum[[1]][["Pr(>F)"]][[3]],5),scientific=FALSE))))), # tags$h5 helps shrink the size of the number value in the box
+                     subtitle=tags$div(HTML(paste0(tags$b("Significant"),tags$br(),tags$h4("Interaction")))),
+                     icon = icon("check-circle"),
+                     color="green"
+            )
+        } else{
+            valueBox(value=tags$div(HTML(paste0(tags$h5("Pr(>F) = ",format(round(twoSum[[1]][["Pr(>F)"]][[3]],5),scientific=FALSE))))), # tags$h5 helps shrink the size of the number value in the box
+                     subtitle=tags$div(HTML(paste0(tags$b("Not Significant"),tags$br(),tags$h4("Interaction")))),
+                     icon = icon("times-circle"),
+                     color="red"
+            )
+        }
+    })
+    
+    # A two-way ANOVA with interaction
+    output$aSpaceAnovaTable <- renderPrint({
+        getPumpkins <- pumpkins()
+        twoAnovaInteract <- aov(getPumpkins[[input$aSpaceResponse]] ~ plantArea * betweenRow,data=getPumpkins)
+        print(twoAnovaInteract)
+        print(summary(twoAnovaInteract))
+        #cat("Coefficients"); cat("\n")
+        #print(twoAnovaInteract$coefficients)
+    })
+    # Corresponding coefficients table
+    output$aSpaceCoefTable <- function() {
+        getPumpkins <- pumpkins()
+        twoAnovaInteract <- aov(getPumpkins[[input$aSpaceResponse]] ~ plantArea * betweenRow,data=getPumpkins)
+        coef <- as.tibble(cbind(names(twoAnovaInteract$coefficients),round(twoAnovaInteract$coefficients,2)))
+        names(coef) <- c("Term","Coefficient")
+        coef[1,1] <- "Mean (Intercept)"
+        coef %>%
+            knitr::kable("html") %>%
+            kable_styling("striped",full_width=TRUE,position="left",fixed_thead = TRUE)
+    }
+    # Corresponding Tukey
+    output$aSpaceTukeyTable <- renderPrint({
+        getPumpkins <- pumpkins()
+        twoAnovaInteract <- aov(getPumpkins[[input$aSpaceResponse]] ~ plantArea * betweenRow,data=getPumpkins)
+        print(TukeyHSD(twoAnovaInteract))
+    })
+    # Corresponding interaction plot
+    output$aSpaceIntPlot <- renderPlotly({
+        yLabel <- ifelse(userMetric()=="volumeEllipsoid","Average Pumpkin Volume (cubic inches)",
+                         ifelse(userMetric()=="diameter","Average Pumpkin Diameter (inches)",
+                                ifelse(userMetric()=="length","Average Pumpkin Length (inches)",
+                                       ifelse(userMetric()=="weight","Average Pumpkin Weight (lbs)",
+                                              userMetric()))))
+        getPumpkins <- pumpkins()
+        getPumpkins <- getPumpkins %>% group_by(plantArea,betweenRow) %>% summarise(mean(eval(parse(text=userMetric()))))
+        names(getPumpkins) <- c("plantArea","betweenRow",userMetric())
+        intPlot <- ggplot(getPumpkins, aes(x=plantArea,y=eval(parse(text=userMetric())),color=betweenRow)) +
+            geom_line(aes(group=betweenRow)) +
+            geom_point() +
+            labs(x="Plant Area (square feet)",
+                 y=yLabel,
+                 color="" # Hides the ggplot legend title as blank so plotly legend title below will show alone
+                 )
+        y <- ggplotly(intPlot) %>% layout(legend=list(orientation="v",traceorder="reversed",title=list(text="Between Row (feet)"))) # orientation="h" legend position on top, traceorder changes sort of legend values
+        y
+    })
+    
+    # Spacing analysis - explanation of results
+    output$aSpaceSigResult <- renderUI({
+        tags$div("The ",
+                 tags$b(tags$span(style="color:green", "green")),
+                 " and ",
+                 tags$b(tags$span(style="color:red", "red")),
+                 " boxes indicate if Plant Area, Between Row, or their Interaction together have a significant effect on the selected response mean of pumpkin volume, diameter, length, or weight. Significance is determined by the corresponding p-value associated with the F statistic - Pr(>F) as being < 0.05 in value. The null hypothesis of Plant Area, Between Row, or their Interaction having no effect on the reseponse mean is evaluated by this p-value. If significant, the null hypothesis is rejected.",
+                 tags$h4("Two-Way ANOVA Result"),
+                 "Explain two-way ANOVA output.",
+                 tags$h4("Interaction Plot"),
+                 "Explain interaction plot.",
+                 tags$h4("Coefficients"),
+                 "Explain coefficient values.",
+                 tags$h4("Tukey Results"),
+                 "Explain Tukey and corresponding p.",
+                 )
+    })
+#}
+    
     ###################### RENDER NITROGEN OUTPUT ################################################
-    
-    #####
-    ##### UI ACTIONS
-    #####
-    
-    ###
-    ### SIDEBAR
-    ###
     
     #####
     ##### INFORMATION - NITROGEN
@@ -799,14 +1349,6 @@ function(input, output, session) {
     })
     
     ###################### RENDER LEAF OUTPUT ################################################
-    
-    #####
-    ##### UI ACTIONS
-    #####
-    
-    ###
-    ### SIDEBAR
-    ###
     
     #####
     ##### INFORMATION - LEAF

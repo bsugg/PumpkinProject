@@ -7,6 +7,7 @@ library(shinyjs)
 library(V8)
 library(wordcloud2)
 library(plotly)
+library(mathjaxr)
 
 # radioButtons("radioStudySelect","Study Selection",
 #              choiceNames=list("Spacing","Nitrogen","Leaf"),
@@ -73,7 +74,7 @@ dashboardPage(
             tabItem(tabName = "infoSpaceStudy",
                     fluidRow(
                         column(width=6,
-                               box(title = "Information - Research Study", footer = "Data Last Refreshed: 12-April-2022",status="danger",width=NULL,
+                               box(title = "Information - Research Study", footer = "Data Last Refreshed: 21-April-2022",status="danger",width=NULL,
                                    tabsetPanel(type = "tabs",
                                                tabPanel("Introduction", uiOutput("infoSpaceStudyIntro")),
                                                tabPanel("Glossary", uiOutput("infoSpaceStudyGloss")),
@@ -94,9 +95,6 @@ dashboardPage(
             tabItem(tabName = "infoSpaceTreat",
                     fluidRow(
                         column(width=7,
-                               box(title = "Information - Treatments",status="danger",width=NULL,
-                                   "Select a treatment to get started."
-                               ),
                                fluidRow(  # A row within another column has its own total width of 12
                                    column(width=4,
                                           box(status="danger",width=NULL,
@@ -137,51 +135,75 @@ dashboardPage(
             ),
             
             #####
-            ##### DATA EXPLORATION - SPACING BASIC
+            ##### DATA EXPLORATION - SPACING CHARTS FOR QUANTITY
             #####
-            tabItem(tabName="exploreSpaceBasic",
+            tabItem(tabName="exploreSpaceQuantity",
                     fluidRow(
-                        column(width = 6,
-                               box(title="Pumpkin Count",status="danger",width=NULL,
-                                   tabsetPanel(type = "tabs",
-                                               tabPanel("Dimension",plotlyOutput("exSpaceBarCountDim")),
-                                               tabPanel("Area",plotlyOutput("exSpaceBarCountArea")),
-                                               tabPanel("Between Row",plotlyOutput("exSpaceBarCountBR"))
-                                   ))
+                        column(width = 2,
+                               box(status="danger",width=NULL,
+                                   selectInput(inputId = "exSpaceQtyPlot",
+                                               label = "Count By",
+                                               choices = c("Average per Plot"="averagePlot",
+                                                           "Scaled Average per Plot"="scaledAveragePlot",
+                                                           "Scaled Average per Acre"="scaledAverageAcre",
+                                                           "Total"="totalPlot",
+                                                           "Scaled Total"="scaledTotalPlot"
+                                               )
+                                   )
+                               )
                         ), # end column
-                        column(width = 6,
-                               box(title="Pumpkin Volume",status="danger",width=NULL,
-                                   tabsetPanel(type = "tabs",
-                                               tabPanel("Dimension",plotlyOutput("exSpaceBoxVolDim")),
-                                               tabPanel("Area",plotlyOutput("exSpaceBoxVolArea")),
-                                               tabPanel("Between Row",plotlyOutput("exSpaceBoxVolBR"))
-                                   ))
+                        column(width = 4,
+                               box(title="What is this...",status="danger",width=NULL,
+                                   "Explain it to me.")
+                        ), # end column
+                        column(width = 2,
+                               box(status="danger",width=NULL,
+                                   selectInput(inputId = "exSpaceQtyGroup",
+                                               label = "Group By",
+                                               choices = c("Plant Area"="plantArea",
+                                                           "Spacing Dimension"="spacingDim",
+                                                           "Between Row"="betweenRow",
+                                                           "In Row"="inRow",
+                                                           "Year"="year",
+                                                           "Plot"="plot"
+                                               )
+                                   ),
+                               )
+                        ), # end column
+                        column(width = 2,
+                               box(status="danger",width=NULL,
+                                   selectInput(inputId = "exSpaceQtyArea",
+                                               label = "Plant Area",
+                                               choices = c("All",
+                                                           "10 sq. ft."="10",
+                                                           "20 sq. ft."="20",
+                                                           "30 sq. ft."="30",
+                                                           "40 sq. ft."="40")
+                                   )
+                               )
+                        ), # end column
+                        column(width = 2,
+                               box(status="danger",width=NULL,
+                                   uiOutput("exSpaceQtyDim") # This is reactive and controlled in server
+                               )
                         ) # end column
                     ), # end fluidRow
                     fluidRow(
                         column(width = 6,
-                               box(title="Pumpkin Color",status="danger",width=NULL,
-                                   tabsetPanel(type="tabs",
-                                               tabPanel("Dimension",plotlyOutput("exSpaceStackColorDim")),
-                                               tabPanel("Area",plotlyOutput("exSpaceStackColorArea")),
-                                               tabPanel("Between Row",plotlyOutput("exSpaceStackColorBR"))
-                                   ))
+                               box(plotlyOutput("exSpaceQtyDia"),status="danger",width=NULL)
                         ), # end column
                         column(width = 6,
-                               box(title="Pumpkin Diameter",status="danger",width=NULL,
-                                   tabsetPanel(type="tabs",
-                                               tabPanel("Dimension",plotlyOutput("exSpaceHistDiaDim")),
-                                               tabPanel("Area",plotlyOutput("exSpaceHistDiaArea")),
-                                               tabPanel("Between Row",plotlyOutput("exSpaceHistDiaBR"))
-                                   ))
+                               box(plotlyOutput("exSpaceQtyBar"),status="danger",width=NULL)
                         ) # end column
                     ), # end fluidRow
                     fluidRow(
-                        column(width = 12,
-                               box(title="Pumpkin Summary Data Set",status="danger",
-                                   div(style='overflow-x: scroll',DT::dataTableOutput("tablePumpkinExplore")),width=NULL)
+                        column(width = 6,
+                               box(plotlyOutput("exSpaceQtyDiaColor"),status="danger",width=NULL)
+                        ), # end column
+                        column(width = 6,
+                               box(plotlyOutput("exSpaceQtyColor"),status="danger",width=NULL)
                         ) # end column
-                    ) # end fluidRow
+                    ), # end fluidRow
             ),
             
             #####
@@ -193,8 +215,8 @@ dashboardPage(
                                box(status="danger",width=NULL,
                                    selectInput(inputId = "exSpaceMetPlot",
                                                label = "Chart Type",
-                                               choices = c("Histogram"="histogram",
-                                                           "Density"="density",
+                                               choices = c("Density"="density",
+                                                           "Histogram"="histogram",
                                                            "Box Plot"="boxplot",
                                                            "Scatter"="scatter"
                                                            )
@@ -260,16 +282,89 @@ dashboardPage(
             #####
             tabItem(tabName = "analysisSpace",
                     fluidRow(
-                        column(width=6,
-                               box(title = "Spacing Analysis",status="danger",width=NULL,
+                        column(width = 7,
+                               fluidRow(
+                                   column(width = 8,
+                                          box(title = "Significance Test",status="danger",width=NULL,
+                                              "A two-way analysis of variance (ANOVA) with interaction is used to estimate how the mean of a quantitative response variable changes according to the levels of two independent, categorical variables and their interaction. Select a response variable to get started."
+                                          ),
+                                   ), # END COLUMN
+                                   column(width = 4,
+                                          box(status="danger",width=NULL,
+                                              selectInput(inputId = "aSpaceResponse",
+                                                          label = withMathJax("$$Response Mean, Y_{ijk} $$"),
+                                                          choices = c("Volume"="volumeEllipsoid",
+                                                                      "Diameter"="diameter",
+                                                                      "Length"="length",
+                                                                      "Weight"="weight"
+                                                          )
+                                              )
+                                          )
+                                   ) # END COLUMN
+                               ), # END FLUID ROW
+                               fluidRow( # A row within another column has its own total width of 12
+                                   column(width=4,
+                                          valueBoxOutput("aSpaceAnovaArea",
+                                                         width=NULL)
+                                   ), # END COLUMN
+                                   column(width=4,
+                                          valueBoxOutput("aSpaceAnovaBetween",
+                                                         width=NULL)
+                                   ), # END COLUMN
+                                   column(width=4,
+                                          valueBoxOutput("aSpaceAnovaInteract",
+                                                         width=NULL)
+                                   ) # END COLUMN
+                               ), # END FLUID ROW
+                        ), # END COLUMN
+                        column(width = 5,
+                               box(title="Model for a Two-Way ANOVA with Interaction",status="danger",width=NULL,
+                                   withMathJax("$$ Y_{ijk} = \\mu + \\alpha_{i} + \\beta_{j} + (\\alpha\\beta)_{ij} + \\epsilon_{ijk} $$"),
+                                   withMathJax("$$ \\mu = Mean $$"),
+                                   withMathJax("$$ \\alpha = Effect Plant Area, i = 10, 20, 30, 40 $$"),
+                                   withMathJax("$$ \\beta = Effect Between Row, j = 5, 10 $$"),
+                                   withMathJax("$$ \\alpha\\beta = Effect Interaction $$"),
+                                   withMathJax("$$ \\epsilon = Effect Random Error $$")
                                )
-                        ), # END COLUMN
-                        column(width=6,
-                               box(title = "Spacing Analysis",status="danger",width=NULL
-                               ),
-                        ), # END COLUMN
-                    ) # END FLUID ROW
+                        ) # END COLUMN
+                    ), # END FLUID ROW
+                           fluidRow(
+                               column(width=7,
+                                      box(status="danger",width=NULL,
+                                          tabsetPanel(type = "tabs",
+                                                      tabPanel("Two-Way ANOVA Results",verbatimTextOutput("aSpaceAnovaTable")),
+                                                      tabPanel("Interaction Plot",plotlyOutput("aSpaceIntPlot")),
+                                                      tabPanel("Coefficients",tableOutput("aSpaceCoefTable")),
+                                                      tabPanel("Tukey Results",verbatimTextOutput("aSpaceTukeyTable"))
+                                          )
+                                      )
+                               ), # END COLUMN
+                               column(width=5,
+                                      
+                                      box(title = "Significance of Plant Area and Between Row",status="danger",width=NULL,
+                                          uiOutput("aSpaceSigResult")
+                                      ),
+                               ) # END COLUMN
+                           ) # END FLUID ROW
             ),
+                               # box(status="danger",width=NULL,
+                               #     uiOutput("aSpaceResponseImage") # This is reactive and controlled in server
+                               # ),
+                               # box(status="danger",width=NULL,
+                               #     selectInput(inputId = "aSpacePredictor",
+                               #                 label = "Image Display",
+                               #                 choices = c("Plant Area"="plantArea",
+                               #                             "Spacing Dimension"="spacingDim",
+                               #                             "Between Row"="betweenRow",
+                               #                             "In Row"="inRow"
+                               #                 )
+                               #     ),
+                               # ),
+                               # box(status="danger",width=NULL,
+                               #     tags$img(src="images/spacing/harvestPumpkins.JPG",
+                               #              width="100%",style="display: block; margin-left: auto; margin-right: auto;")
+                               # ),
+
             
             #####
             ##### SIMULATION - SPACING
@@ -293,7 +388,7 @@ dashboardPage(
             tabItem(tabName = "infoNit",
                     fluidRow(
                         column(width=6,
-                               box(title = "Information", footer = "Data Last Refreshed: 7-April-2022",status="danger",width=NULL,
+                               box(title = "Information", footer = "Data Last Refreshed: 21-April-2022",status="danger",width=NULL,
                                    tabsetPanel(type = "tabs",
                                                tabPanel("Overview", uiOutput("infoNitOver")),
                                                tabPanel("Download Data", uiOutput("infoNitDown"))
@@ -334,7 +429,7 @@ dashboardPage(
             tabItem(tabName = "analysisNit",
                     fluidRow(
                         column(width=6,
-                               box(title = "Nitrogen Analysis", footer = "Data Last Refreshed: 7-April-2022",status="danger",width=NULL,
+                               box(title = "Nitrogen Analysis", footer = "Data Last Refreshed: 21-April-2022",status="danger",width=NULL,
                                )
                         ), # END COLUMN
                         column(width=6,
@@ -350,7 +445,7 @@ dashboardPage(
             tabItem(tabName = "infoLeaf",
                     fluidRow(
                         column(width=6,
-                               box(title = "Leaf Information", footer = "Data Last Refreshed: 7-April-2022",status="danger",width=NULL,
+                               box(title = "Leaf Information", footer = "Data Last Refreshed: 21-April-2022",status="danger",width=NULL,
                                    tabsetPanel(type = "tabs",
                                                tabPanel("Overview", uiOutput("infoLeafOver")),
                                                tabPanel("Download Data", uiOutput("infoLeafDown"))
